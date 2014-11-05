@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -47,22 +46,6 @@ func GetContainers(host string, node string, auth AuthInfo) []Container {
 	return containers.Data
 }
 
-func printContainers(containers []Container) {
-	for _, container := range containers {
-		printContainer(container)
-	}
-}
-
-func printContainer(container Container) {
-	s := reflect.ValueOf(container)
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		fmt.Printf("%s: %v\n", typeOfT.Field(i).Name, f.Interface())
-	}
-	fmt.Printf("\n")
-}
-
 type ContainerConfigList struct {
 	Data ContainerConfig
 }
@@ -91,16 +74,6 @@ func GetContainerConfig(host string, node string, vmid string, auth AuthInfo) Co
 	var containerConfig ContainerConfigList
 	json.Unmarshal(body, &containerConfig)
 	return containerConfig.Data
-}
-
-func printContainerConfig(containerConfig ContainerConfig) {
-	s := reflect.ValueOf(containerConfig)
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		fmt.Printf("%s: %v\n", typeOfT.Field(i).Name, f.Interface())
-	}
-	fmt.Printf("\n")
 }
 
 type ContainerRequest struct {

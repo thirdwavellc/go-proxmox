@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"reflect"
 )
 
 type NodeList struct {
@@ -30,20 +28,4 @@ func GetNodes(host string, auth AuthInfo) []Node {
 	var nodes NodeList
 	json.Unmarshal(body, &nodes)
 	return nodes.Data
-}
-
-func printNodes(nodes []Node) {
-	for _, node := range nodes {
-		printNode(node)
-	}
-}
-
-func printNode(node Node) {
-	s := reflect.ValueOf(node)
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		fmt.Printf("%s: %v\n", typeOfT.Field(i).Name, f.Interface())
-	}
-	fmt.Printf("\n")
 }
