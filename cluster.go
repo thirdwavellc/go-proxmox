@@ -44,3 +44,43 @@ func printClusterNode(clusterNode ClusterNode) {
 	}
 	fmt.Printf("\n")
 }
+
+type ClusterTaskList struct {
+	Data []ClusterTask
+}
+
+type ClusterTask struct {
+	EndTime   int
+	Id        string
+	Node      string
+	Saved     string
+	StartTime string
+	Status    string
+	Type      string
+	UPId      string
+	User      string
+}
+
+func GetClusterTasks(host string, auth AuthInfo) []ClusterTask {
+	url := host + "/api2/json/cluster/tasks"
+	body := GetContent(url, auth)
+	var clusterTasks ClusterTaskList
+	json.Unmarshal(body, &clusterTasks)
+	return clusterTasks.Data
+}
+
+func printClusterTasks(clusterTasks []ClusterTask) {
+	for _, clusterTask := range clusterTasks {
+		printClusterTask(clusterTask)
+	}
+}
+
+func printClusterTask(clusterTask ClusterTask) {
+	s := reflect.ValueOf(clusterTask)
+	typeOfT := s.Type()
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		fmt.Printf("%s: %v\n", typeOfT.Field(i).Name, f.Interface())
+	}
+	fmt.Printf("\n")
+}
