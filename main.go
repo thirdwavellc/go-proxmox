@@ -43,6 +43,9 @@ func main() {
 	auth := GetAuth(host, user, password)
 
 	switch action {
+	case "getClusterStatus":
+		cluster := GetClusterStatus(host, auth)
+		printClusterStatus(cluster)
 	case "getNodes":
 		nodes := GetNodes(host, auth)
 		printNodes(nodes)
