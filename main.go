@@ -49,6 +49,9 @@ func main() {
 	case "getClusterTasks":
 		clusterTasks := GetClusterTasks(host, auth)
 		printClusterTasks(clusterTasks)
+	case "getClusterBackupSchedule":
+		clusterBackupSchedule := GetClusterBackupSchedule(host, auth)
+		printClusterBackupSchedule(clusterBackupSchedule)
 	case "getNodes":
 		nodes := GetNodes(host, auth)
 		printNodes(nodes)

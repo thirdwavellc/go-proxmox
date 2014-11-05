@@ -84,3 +84,44 @@ func printClusterTask(clusterTask ClusterTask) {
 	}
 	fmt.Printf("\n")
 }
+
+type ClusterBackupSchedule struct {
+	Data []ClusterBackupScheduleItem
+}
+
+type ClusterBackupScheduleItem struct {
+	All       int
+	Compress  string
+	DOW       string
+	Exclude   string
+	Id        string
+	MailTo    string
+	Mode      string
+	Quiet     int
+	StartTime string
+	Storage   string
+}
+
+func GetClusterBackupSchedule(host string, auth AuthInfo) []ClusterBackupScheduleItem {
+	url := host + "/api2/json/cluster/backup"
+	body := GetContent(url, auth)
+	var clusterBackupSchedule ClusterBackupSchedule
+	json.Unmarshal(body, &clusterBackupSchedule)
+	return clusterBackupSchedule.Data
+}
+
+func printClusterBackupSchedule(clusterBackupSchedule []ClusterBackupScheduleItem) {
+	for _, clusterBackupScheduleItem := range clusterBackupSchedule {
+		printClusterBackupScheduleItem(clusterBackupScheduleItem)
+	}
+}
+
+func printClusterBackupScheduleItem(clusterBackupScheduleItem ClusterBackupScheduleItem) {
+	s := reflect.ValueOf(clusterBackupScheduleItem)
+	typeOfT := s.Type()
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		fmt.Printf("%s: %v\n", typeOfT.Field(i).Name, f.Interface())
+	}
+	fmt.Printf("\n")
+}
