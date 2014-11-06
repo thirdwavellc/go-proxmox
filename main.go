@@ -11,6 +11,7 @@ func main() {
 	var password string
 	var action string
 	var realm string
+	var group_id string
 	var node string
 	var vmid string
 	var cpus int
@@ -25,6 +26,7 @@ func main() {
 	flag.StringVar(&password, "password", "", "Proxmox user password")
 	flag.StringVar(&action, "action", "", "Proxmox api action")
 	flag.StringVar(&realm, "realm", "pve", "Proxmox realm")
+	flag.StringVar(&group_id, "group-id", "", "Proxmox group")
 	flag.StringVar(&node, "node", "", "Proxmox node")
 	flag.StringVar(&vmid, "vmid", "", "OpenVZ container VMID")
 	flag.IntVar(&cpus, "cpus", 0, "Number of CPUs")
@@ -54,6 +56,11 @@ func main() {
 	case "getGroups":
 		groups := proxmox.GetGroups()
 		PrintDataSlice(groups)
+	case "getGroupConfig":
+		var group Group
+		group.GroupId = group_id
+		config := proxmox.GetGroupConfig(group)
+		PrintDataStruct(config)
 	case "getClusterStatus":
 		cluster := proxmox.GetClusterStatus()
 		PrintDataSlice(cluster)

@@ -19,3 +19,19 @@ func (p Proxmox) GetGroups() []Group {
 	json.Unmarshal(body, &groups)
 	return groups.Data
 }
+
+type GroupConfigList struct {
+	Data GroupConfig
+}
+
+type GroupConfig struct {
+	Members []string
+}
+
+func (p Proxmox) GetGroupConfig(group Group) GroupConfig {
+	p.api_endpoint = "/api2/json/access/groups/" + group.GroupId
+	body := p.GetContent()
+	var groupConfig GroupConfigList
+	json.Unmarshal(body, &groupConfig)
+	return groupConfig.Data
+}
