@@ -38,9 +38,9 @@ type Container struct {
 	CPUs      int
 }
 
-func GetContainers(host string, node string, auth AuthInfo) []Container {
-	url := host + "/api2/json/nodes/" + node + "/openvz"
-	body := GetContent(url, auth)
+func (p Proxmox) GetContainers() []Container {
+	p.api_endpoint = "/api2/json/nodes/" + p.node + "/openvz"
+	body := p.GetContent()
 	var containers ContainerList
 	json.Unmarshal(body, &containers)
 	return containers.Data
@@ -68,59 +68,61 @@ type ContainerConfig struct {
 	Swap           int
 }
 
-func GetContainerConfig(host string, node string, vmid string, auth AuthInfo) ContainerConfig {
-	url := host + "/api2/json/nodes/" + node + "/openvz/" + vmid + "/config"
-	body := GetContent(url, auth)
+type ContainerRequest struct {
+	ContainerConfig ContainerConfig
+	node            string
+	vmid            string
+}
+
+func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
+	p.api_endpoint = "/api2/json/nodes/" + req.node + "/openvz/" + req.vmid + "/config"
+	body := p.GetContent()
 	var containerConfig ContainerConfigList
 	json.Unmarshal(body, &containerConfig)
 	return containerConfig.Data
 }
 
-type ContainerRequest struct {
-	ContainerConfig ContainerConfig
-	Node            string
-	VMID            string
-}
-
-func CreateContainer(host string, containerRequest *ContainerRequest, auth AuthInfo) []byte {
-	requestUrl := host + "/api2/json/nodes/" + containerRequest.Node + "/openvz/" + containerRequest.VMID + "/config"
-	fmt.Println("Fetching:", requestUrl)
+func (p Proxmox) CreateContainer(req *ContainerRequest) []byte {
+	p.api_endpoint = "/api2/json/nodes/" + req.node + "/openvz/" + req.vmid + "/config"
+	fmt.Println("Fetching:", p.Url())
 
 	data := url.Values{}
-	data.Set("node", containerRequest.Node)
-	data.Set("vmid", containerRequest.VMID)
-	if containerRequest.ContainerConfig.CPUs > 0 {
-		data.Set("cpus", strconv.Itoa(containerRequest.ContainerConfig.CPUs))
+	data.Set("node", req.node)
+	data.Set("vmid", req.vmid)
+	if req.ContainerConfig.CPUs > 0 {
+		data.Set("cpus", strconv.Itoa(req.ContainerConfig.CPUs))
 	}
-	if containerRequest.ContainerConfig.Disk > 0 {
-		data.Set("disk", strconv.Itoa(containerRequest.ContainerConfig.Disk))
+	if req.ContainerConfig.Disk > 0 {
+		data.Set("disk", strconv.Itoa(req.ContainerConfig.Disk))
 	}
-	if containerRequest.ContainerConfig.Hostname != "" {
-		data.Set("hostname", containerRequest.ContainerConfig.Hostname)
+	if req.ContainerConfig.Hostname != "" {
+		data.Set("hostname", req.ContainerConfig.Hostname)
 	}
-	if containerRequest.ContainerConfig.IP_Address != "" {
-		data.Set("ip_address", containerRequest.ContainerConfig.IP_Address)
+	if req.ContainerConfig.IP_Address != "" {
+		data.Set("ip_address", req.ContainerConfig.IP_Address)
 	}
-	if containerRequest.ContainerConfig.Memory > 0 {
-		data.Set("memory", strconv.Itoa(containerRequest.ContainerConfig.Memory))
+	if req.ContainerConfig.Memory > 0 {
+		data.Set("memory", strconv.Itoa(req.ContainerConfig.Memory))
 	}
-	if containerRequest.ContainerConfig.Swap > 0 {
-		data.Set("swap", strconv.Itoa(containerRequest.ContainerConfig.Swap))
+	if req.ContainerConfig.Swap > 0 {
+		data.Set("swap", strconv.Itoa(req.ContainerConfig.Swap))
 	}
 
-	req, err := http.NewRequest("PUT", requestUrl, bytes.NewBufferString(data.Encode()))
+	request, err := http.NewRequest("PUT", p.Url(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		PrintError(err)
 	}
 
-	req.Header.Add("CSRFPreventionToken", auth.CSRFPreventionToken)
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
-	req.AddCookie(&cookie)
+	request.Header.Add("CSRFPreventionToken", p.auth.CSRFPreventionToken)
 
-	fmt.Printf("Request: %+v", req)
+	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
+		Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+	request.AddCookie(&cookie)
+
+	fmt.Printf("Request: %+v", request)
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(request)
 	if err != nil {
 		PrintError(err)
 	}

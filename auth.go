@@ -17,12 +17,12 @@ type AuthInfo struct {
 	Username            string
 }
 
-func GetAuth(host string, username string, password string) AuthInfo {
-	requestUrl := host + "/api2/json/access/ticket"
+func (p Proxmox) GetAuth() AuthInfo {
+	p.api_endpoint = "/api2/json/access/ticket"
 	values := make(url.Values)
-	values.Set("username", username)
-	values.Set("password", password)
-	resp, err := http.PostForm(requestUrl, values)
+	values.Set("username", p.user)
+	values.Set("password", p.password)
+	resp, err := http.PostForm(p.Url(), values)
 	if err != nil {
 		PrintError(err)
 	}

@@ -22,9 +22,9 @@ type Node struct {
 	Mem     int
 }
 
-func GetNodes(host string, auth AuthInfo) []Node {
-	url := host + "/api2/json/nodes"
-	body := GetContent(url, auth)
+func (p Proxmox) GetNodes() []Node {
+	p.api_endpoint = "/api2/json/nodes"
+	body := p.GetContent()
 	var nodes NodeList
 	json.Unmarshal(body, &nodes)
 	return nodes.Data

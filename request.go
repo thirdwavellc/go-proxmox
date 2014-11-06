@@ -7,15 +7,19 @@ import (
 	"time"
 )
 
-func GetContent(url string, auth AuthInfo) []byte {
-	fmt.Println("Fetching:", url)
+func (p Proxmox) Url() string {
+	return p.host + p.api_endpoint
+}
 
-	req, err := http.NewRequest("GET", url, nil)
+func (p Proxmox) GetContent() []byte {
+	fmt.Println("Fetching:", p.Url())
+
+	req, err := http.NewRequest("GET", p.Url(), nil)
 	if err != nil {
 		PrintError(err)
 	}
 
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
 	req.AddCookie(&cookie)
 
 	client := &http.Client{}

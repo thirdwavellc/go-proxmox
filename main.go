@@ -18,6 +18,7 @@ func main() {
 	var ip_address string
 	var memory int
 	var swap int
+
 	flag.StringVar(&host, "host", "", "Proxmox host")
 	flag.StringVar(&user, "user", "root@pam", "Proxmox user")
 	flag.StringVar(&password, "password", "", "Proxmox user password")
@@ -33,50 +34,58 @@ func main() {
 
 	flag.Parse()
 
-	auth := GetAuth(host, user, password)
+	proxmox := Proxmox{}
+	proxmox.host = host
+	proxmox.user = user
+	proxmox.password = password
+	proxmox.auth = proxmox.GetAuth()
 
 	switch action {
 	case "getClusterStatus":
-		cluster := GetClusterStatus(host, auth)
+		cluster := proxmox.GetClusterStatus()
 		PrintDataSlice(cluster)
 	case "getClusterTasks":
-		clusterTasks := GetClusterTasks(host, auth)
+		clusterTasks := proxmox.GetClusterTasks()
 		PrintDataSlice(clusterTasks)
 	case "getClusterBackupSchedule":
-		clusterBackupSchedule := GetClusterBackupSchedule(host, auth)
+		clusterBackupSchedule := proxmox.GetClusterBackupSchedule()
 		PrintDataSlice(clusterBackupSchedule)
 	case "getNodes":
-		nodes := GetNodes(host, auth)
+		nodes := proxmox.GetNodes()
 		PrintDataSlice(nodes)
 	case "getContainers":
-		containers := GetContainers(host, node, auth)
+		proxmox.node = node
+		containers := proxmox.GetContainers()
 		PrintDataSlice(containers)
 	case "getContainerConfig":
-		containerConfig := GetContainerConfig(host, node, vmid, auth)
+		var req = ContainerRequest{}
+		req.node = node
+		req.vmid = vmid
+		containerConfig := proxmox.GetContainerConfig(req)
 		PrintDataStruct(containerConfig)
 	case "createContainer":
-		containerRequest := &ContainerRequest{}
-		containerRequest.Node = node
-		containerRequest.VMID = vmid
+		req := &ContainerRequest{}
+		req.node = node
+		req.vmid = vmid
 		if cpus > 0 {
-			containerRequest.ContainerConfig.CPUs = cpus
+			req.ContainerConfig.CPUs = cpus
 		}
 		if disk > 0 {
-			containerRequest.ContainerConfig.Disk = disk
+			req.ContainerConfig.Disk = disk
 		}
 		if hostname != "" {
-			containerRequest.ContainerConfig.Hostname = hostname
+			req.ContainerConfig.Hostname = hostname
 		}
 		if ip_address != "" {
-			containerRequest.ContainerConfig.IP_Address = ip_address
+			req.ContainerConfig.IP_Address = ip_address
 		}
 		if memory > 0 {
-			containerRequest.ContainerConfig.Memory = memory
+			req.ContainerConfig.Memory = memory
 		}
 		if swap > 0 {
-			containerRequest.ContainerConfig.Swap = swap
+			req.ContainerConfig.Swap = swap
 		}
-		CreateContainer(host, containerRequest, auth)
+		proxmox.CreateContainer(req)
 	default:
 		fmt.Printf("Unsupported action: %s", action)
 	}
