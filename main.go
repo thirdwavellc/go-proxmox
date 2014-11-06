@@ -10,6 +10,7 @@ func main() {
 	var user string
 	var password string
 	var action string
+	var realm string
 	var node string
 	var vmid string
 	var cpus int
@@ -23,6 +24,7 @@ func main() {
 	flag.StringVar(&user, "user", "root@pam", "Proxmox user")
 	flag.StringVar(&password, "password", "", "Proxmox user password")
 	flag.StringVar(&action, "action", "", "Proxmox api action")
+	flag.StringVar(&realm, "realm", "pve", "Proxmox realm")
 	flag.StringVar(&node, "node", "", "Proxmox node")
 	flag.StringVar(&vmid, "vmid", "", "OpenVZ container VMID")
 	flag.IntVar(&cpus, "cpus", 0, "Number of CPUs")
@@ -44,6 +46,11 @@ func main() {
 	case "getDomains":
 		domains := proxmox.GetDomains()
 		PrintDataSlice(domains)
+	case "getRealmConfig":
+		domain := Domain{}
+		domain.Realm = realm
+		config := proxmox.GetRealmConfig(domain)
+		PrintDataStruct(config)
 	case "getClusterStatus":
 		cluster := proxmox.GetClusterStatus()
 		PrintDataSlice(cluster)
