@@ -41,6 +41,9 @@ func main() {
 	proxmox.auth = proxmox.GetAuth()
 
 	switch action {
+	case "getDomains":
+		domains := proxmox.GetDomains()
+		PrintDataSlice(domains)
 	case "getClusterStatus":
 		cluster := proxmox.GetClusterStatus()
 		PrintDataSlice(cluster)
