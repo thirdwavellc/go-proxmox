@@ -77,5 +77,7 @@ func main() {
 			containerRequest.ContainerConfig.Swap = swap
 		}
 		CreateContainer(host, containerRequest, auth)
+	default:
+		fmt.Printf("Unsupported action: %s", action)
 	}
 }
