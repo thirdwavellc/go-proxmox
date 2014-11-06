@@ -51,6 +51,9 @@ func main() {
 		domain.Realm = realm
 		config := proxmox.GetRealmConfig(domain)
 		PrintDataStruct(config)
+	case "getGroups":
+		groups := proxmox.GetGroups()
+		PrintDataSlice(groups)
 	case "getClusterStatus":
 		cluster := proxmox.GetClusterStatus()
 		PrintDataSlice(cluster)
