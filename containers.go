@@ -1,14 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"net/url"
-	"strconv"
-	"time"
 )
 
 type ContainerList struct {
@@ -69,13 +64,17 @@ type ContainerConfig struct {
 }
 
 type ContainerRequest struct {
-	ContainerConfig ContainerConfig
-	node            string
-	vmid            string
+	Node       string `json:"node"`
+	OsTemplate string `json:"ostemplate"`
+	VMID       string `json:"vmid"`
+}
+
+func (r ContainerRequest) FormatTemplate() string {
+	return fmt.Sprintf("local:vztmpl/%s.tar.gz", r.OsTemplate)
 }
 
 func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
-	p.api_endpoint = "/api2/json/nodes/" + req.node + "/openvz/" + req.vmid + "/config"
+	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz/" + req.VMID + "/config"
 	body := p.GetContent()
 	var containerConfig ContainerConfigList
 	json.Unmarshal(body, &containerConfig)
@@ -83,57 +82,12 @@ func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
 }
 
 func (p Proxmox) CreateContainer(req *ContainerRequest) []byte {
-	p.api_endpoint = "/api2/json/nodes/" + req.node + "/openvz/" + req.vmid + "/config"
-	fmt.Println("Fetching:", p.Url())
+	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz"
 
-	data := url.Values{}
-	data.Set("node", req.node)
-	data.Set("vmid", req.vmid)
-	if req.ContainerConfig.CPUs > 0 {
-		data.Set("cpus", strconv.Itoa(req.ContainerConfig.CPUs))
-	}
-	if req.ContainerConfig.Disk > 0 {
-		data.Set("disk", strconv.Itoa(req.ContainerConfig.Disk))
-	}
-	if req.ContainerConfig.Hostname != "" {
-		data.Set("hostname", req.ContainerConfig.Hostname)
-	}
-	if req.ContainerConfig.IP_Address != "" {
-		data.Set("ip_address", req.ContainerConfig.IP_Address)
-	}
-	if req.ContainerConfig.Memory > 0 {
-		data.Set("memory", strconv.Itoa(req.ContainerConfig.Memory))
-	}
-	if req.ContainerConfig.Swap > 0 {
-		data.Set("swap", strconv.Itoa(req.ContainerConfig.Swap))
-	}
+	payload := url.Values{}
+	payload.Add("ostemplate", req.FormatTemplate())
+	payload.Add("vmid", req.VMID)
 
-	request, err := http.NewRequest("PUT", p.Url(), bytes.NewBufferString(data.Encode()))
-	if err != nil {
-		PrintError(err)
-	}
-
-	request.Header.Add("CSRFPreventionToken", p.auth.CSRFPreventionToken)
-
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
-		Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
-	request.AddCookie(&cookie)
-
-	fmt.Printf("Request: %+v", request)
-
-	client := &http.Client{}
-	resp, err := client.Do(request)
-	if err != nil {
-		PrintError(err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		PrintError(err)
-	}
-
-	fmt.Println(string(body[:]))
+	body := p.PostContent(payload)
 	return body
 }

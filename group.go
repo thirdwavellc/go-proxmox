@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
 type GroupList struct {
@@ -9,7 +10,7 @@ type GroupList struct {
 }
 
 type Group struct {
-	GroupId string
+	GroupId string `json:"groupid"`
 }
 
 func (p Proxmox) GetGroups() []Group {
@@ -34,4 +35,14 @@ func (p Proxmox) GetGroupConfig(group Group) GroupConfig {
 	var groupConfig GroupConfigList
 	json.Unmarshal(body, &groupConfig)
 	return groupConfig.Data
+}
+
+func (p Proxmox) CreateGroup(group Group) []byte {
+	p.api_endpoint = "/api2/json/access/groups"
+
+	payload := url.Values{}
+	payload.Add("groupid", group.GroupId)
+
+	body := p.PostContent(payload)
+	return body
 }

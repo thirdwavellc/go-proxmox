@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 )
 
 func main() {
@@ -15,6 +16,7 @@ func main() {
 	var role_id string
 	var node string
 	var vmid string
+	var ostemplate string
 	var cpus int
 	var disk int
 	var hostname string
@@ -31,6 +33,7 @@ func main() {
 	flag.StringVar(&role_id, "role-id", "", "Proxmox role")
 	flag.StringVar(&node, "node", "", "Proxmox node")
 	flag.StringVar(&vmid, "vmid", "", "OpenVZ container VMID")
+	flag.StringVar(&ostemplate, "ostemplate", "", "OpenVZ container template")
 	flag.IntVar(&cpus, "cpus", 0, "Number of CPUs")
 	flag.IntVar(&disk, "disk", 0, "Disk size")
 	flag.StringVar(&hostname, "hostname", "", "Hostname")
@@ -63,6 +66,10 @@ func main() {
 		group.GroupId = group_id
 		config := proxmox.GetGroupConfig(group)
 		PrintDataStruct(config)
+	case "createGroup":
+		var group Group
+		group.GroupId = group_id
+		proxmox.CreateGroup(group)
 	case "getRoles":
 		roles := proxmox.GetRoles()
 		PrintDataSlice(roles)
@@ -89,34 +96,18 @@ func main() {
 		PrintDataSlice(containers)
 	case "getContainerConfig":
 		var req = ContainerRequest{}
-		req.node = node
-		req.vmid = vmid
+		req.Node = node
+		req.VMID = vmid
 		containerConfig := proxmox.GetContainerConfig(req)
 		PrintDataStruct(containerConfig)
 	case "createContainer":
 		req := &ContainerRequest{}
-		req.node = node
-		req.vmid = vmid
-		if cpus > 0 {
-			req.ContainerConfig.CPUs = cpus
-		}
-		if disk > 0 {
-			req.ContainerConfig.Disk = disk
-		}
-		if hostname != "" {
-			req.ContainerConfig.Hostname = hostname
-		}
-		if ip_address != "" {
-			req.ContainerConfig.IP_Address = ip_address
-		}
-		if memory > 0 {
-			req.ContainerConfig.Memory = memory
-		}
-		if swap > 0 {
-			req.ContainerConfig.Swap = swap
-		}
+		req.Node = node
+		req.VMID = vmid
+		req.OsTemplate = ostemplate
 		proxmox.CreateContainer(req)
 	default:
 		fmt.Printf("Unsupported action: %s", action)
+		os.Exit(1)
 	}
 }
