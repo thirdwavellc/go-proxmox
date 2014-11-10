@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"time"
 )
 
 type NodeList struct {
@@ -58,4 +60,18 @@ func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) NodeTaskStatus {
 	var task NodeTaskStatusList
 	json.Unmarshal(body, &task)
 	return task.Data
+}
+
+func (p Proxmox) CheckNodeTaskStatus(req NodeTaskStatusRequest) NodeTaskStatus {
+	var task NodeTaskStatus
+	for {
+		task = p.GetNodeTaskStatus(req)
+		if task.Status == "stopped" {
+			fmt.Printf("done.\n")
+			return task
+		} else {
+			fmt.Printf(".")
+			time.Sleep(time.Second)
+		}
+	}
 }

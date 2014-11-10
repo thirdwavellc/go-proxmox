@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 )
 
 func main() {
@@ -114,26 +113,31 @@ func main() {
 		req.Node = node
 		req.VMID = vmid
 		req.OsTemplate = ostemplate
+		fmt.Printf("Creating container")
 		upid := proxmox.CreateContainer(req)
 		statusRequest := NodeTaskStatusRequest{}
 		statusRequest.Node = node
 		statusRequest.UPID = upid
-		var task NodeTaskStatus
-		fmt.Printf("Creating container")
-		for {
-			task = proxmox.GetNodeTaskStatus(statusRequest)
-			if task.Status == "stopped" {
-				fmt.Printf("done.\n")
-				if task.ExitStatus == "OK" {
-					fmt.Println("Container successfully created!")
-				} else {
-					fmt.Println("Exit Status: %s", task.ExitStatus)
-				}
-				return
-			} else {
-				fmt.Printf(".")
-				time.Sleep(time.Second)
-			}
+		task := proxmox.CheckNodeTaskStatus(statusRequest)
+		if task.ExitStatus == "OK" {
+			fmt.Println("Container successfully created!")
+		} else {
+			fmt.Println("Exit Status: %s", task.ExitStatus)
+		}
+	case "deleteContainer":
+		request := &ContainerRequest{}
+		request.Node = node
+		request.VMID = vmid
+		fmt.Printf("Deleting container")
+		upid := proxmox.DeleteContainer(request)
+		statusRequest := NodeTaskStatusRequest{}
+		statusRequest.Node = node
+		statusRequest.UPID = upid
+		task := proxmox.CheckNodeTaskStatus(statusRequest)
+		if task.ExitStatus == "OK" {
+			fmt.Println("Container successfully deleted!")
+		} else {
+			fmt.Println("Exit Status: %s", task.ExitStatus)
 		}
 	default:
 		fmt.Printf("Unsupported action: %s", action)

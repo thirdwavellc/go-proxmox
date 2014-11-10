@@ -38,7 +38,22 @@ func (p Proxmox) GetContent() []byte {
 }
 
 func (p Proxmox) PostContent(payload url.Values) []byte {
-	request, err := http.NewRequest("POST", p.Url(), bytes.NewBufferString(payload.Encode()))
+	body := p.SendContent("POST", payload)
+	return body
+}
+
+func (p Proxmox) PutContent(payload url.Values) []byte {
+	body := p.SendContent("PUT", payload)
+	return body
+}
+
+func (p Proxmox) DeleteContent(payload url.Values) []byte {
+	body := p.SendContent("DELETE", payload)
+	return body
+}
+
+func (p Proxmox) SendContent(method string, payload url.Values) []byte {
+	request, err := http.NewRequest(method, p.Url(), bytes.NewBufferString(payload.Encode()))
 	if err != nil {
 		PrintError(err)
 	}
