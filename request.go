@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -14,8 +13,6 @@ func (p Proxmox) Url() string {
 }
 
 func (p Proxmox) GetContent() []byte {
-	fmt.Println("Fetching:", p.Url())
-
 	req, err := http.NewRequest("GET", p.Url(), nil)
 	if err != nil {
 		PrintError(err)
@@ -41,8 +38,6 @@ func (p Proxmox) GetContent() []byte {
 }
 
 func (p Proxmox) PostContent(payload url.Values) []byte {
-	fmt.Printf("Fetching: %v\n\n", p.Url())
-
 	request, err := http.NewRequest("POST", p.Url(), bytes.NewBufferString(payload.Encode()))
 	if err != nil {
 		PrintError(err)
@@ -53,9 +48,6 @@ func (p Proxmox) PostContent(payload url.Values) []byte {
 	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
 		Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
 	request.AddCookie(&cookie)
-
-	fmt.Printf("Request Headers: %+v\n\n", request.Header)
-	fmt.Printf("Request Body: %+v\n\n", request.Body)
 
 	client := &http.Client{}
 	resp, err := client.Do(request)
@@ -70,8 +62,5 @@ func (p Proxmox) PostContent(payload url.Values) []byte {
 		PrintError(err)
 	}
 
-	fmt.Printf("Response Status: %v\n\n", resp.Status)
-	fmt.Printf("Response Headers: %v\n\n", resp.Header)
-	fmt.Printf("Response Body: %v\n\n", string(body))
 	return body
 }
