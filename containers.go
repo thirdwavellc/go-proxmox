@@ -81,7 +81,11 @@ func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
 	return containerConfig.Data
 }
 
-func (p Proxmox) CreateContainer(req *ContainerRequest) []byte {
+type CreateContainerResponse struct {
+	Data string
+}
+
+func (p Proxmox) CreateContainer(req *ContainerRequest) string {
 	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz"
 
 	payload := url.Values{}
@@ -89,5 +93,7 @@ func (p Proxmox) CreateContainer(req *ContainerRequest) []byte {
 	payload.Add("vmid", req.VMID)
 
 	body := p.PostContent(payload)
-	return body
+	var response CreateContainerResponse
+	json.Unmarshal(body, &response)
+	return response.Data
 }

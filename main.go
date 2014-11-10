@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -15,6 +16,7 @@ func main() {
 	var group_id string
 	var role_id string
 	var node string
+	var upid string
 	var vmid string
 	var ostemplate string
 	var cpus int
@@ -32,6 +34,7 @@ func main() {
 	flag.StringVar(&group_id, "group-id", "", "Proxmox group")
 	flag.StringVar(&role_id, "role-id", "", "Proxmox role")
 	flag.StringVar(&node, "node", "", "Proxmox node")
+	flag.StringVar(&upid, "upid", "", "Proxmox task UPID")
 	flag.StringVar(&vmid, "vmid", "", "OpenVZ container VMID")
 	flag.StringVar(&ostemplate, "ostemplate", "", "OpenVZ container template")
 	flag.IntVar(&cpus, "cpus", 0, "Number of CPUs")
@@ -90,6 +93,12 @@ func main() {
 	case "getNodes":
 		nodes := proxmox.GetNodes()
 		PrintDataSlice(nodes)
+	case "getNodeTaskStatus":
+		request := NodeTaskStatusRequest{}
+		request.Node = node
+		request.UPID = upid
+		status := proxmox.GetNodeTaskStatus(request)
+		PrintDataStruct(status)
 	case "getContainers":
 		proxmox.node = node
 		containers := proxmox.GetContainers()
@@ -105,7 +114,27 @@ func main() {
 		req.Node = node
 		req.VMID = vmid
 		req.OsTemplate = ostemplate
-		proxmox.CreateContainer(req)
+		upid := proxmox.CreateContainer(req)
+		statusRequest := NodeTaskStatusRequest{}
+		statusRequest.Node = node
+		statusRequest.UPID = upid
+		var task NodeTaskStatus
+		fmt.Printf("Creating container")
+		for {
+			task = proxmox.GetNodeTaskStatus(statusRequest)
+			if task.Status == "stopped" {
+				fmt.Printf("done.\n")
+				if task.ExitStatus == "OK" {
+					fmt.Println("Container successfully created!")
+				} else {
+					fmt.Println("Exit Status: %s", task.ExitStatus)
+				}
+				return
+			} else {
+				fmt.Printf(".")
+				time.Sleep(time.Second)
+			}
+		}
 	default:
 		fmt.Printf("Unsupported action: %s", action)
 		os.Exit(1)
