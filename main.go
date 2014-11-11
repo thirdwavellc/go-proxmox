@@ -45,6 +45,21 @@ func main() {
 
 	flag.Parse()
 
+	config := ReadProxmoxConfig()
+
+	if config.Host != "" && host == "" {
+		host = config.Host
+	}
+	if config.User != "" && user == "" {
+		user = config.User
+	}
+	if config.Password != "" && password == "" {
+		password = config.Password
+	}
+	if config.DefaultNode != "" && node == "" {
+		node = config.DefaultNode
+	}
+
 	proxmox := Proxmox{}
 	proxmox.host = host
 	proxmox.user = user
