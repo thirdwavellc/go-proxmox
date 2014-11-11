@@ -1,0 +1,6 @@
+{
+  "host": "https://proxmox.example.com",
+  "user": "root@pam",
+  "password": "password",
+  "defaultNode": "proxmox01"
+}

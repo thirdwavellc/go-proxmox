@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	var configFile string
 	var host string
 	var user string
 	var password string
@@ -25,6 +26,7 @@ func main() {
 	var memory int
 	var swap int
 
+	flag.StringVar(&configFile, "config", "", "Proxmox config file")
 	flag.StringVar(&host, "host", "", "Proxmox host")
 	flag.StringVar(&user, "user", "root@pam", "Proxmox user")
 	flag.StringVar(&password, "password", "", "Proxmox user password")
@@ -45,7 +47,7 @@ func main() {
 
 	flag.Parse()
 
-	config := ReadProxmoxConfig()
+	config := ReadProxmoxConfig(configFile)
 
 	if config.Host != "" && host == "" {
 		host = config.Host

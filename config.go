@@ -14,13 +14,15 @@ type ProxmoxConfig struct {
 	DefaultNode string `json:"defaultNode"`
 }
 
-func ReadProxmoxConfig() ProxmoxConfig {
+func ReadProxmoxConfig(file string) ProxmoxConfig {
 	homedir, err := homedir.Dir()
 	if err != nil {
 		PrintError(err)
 	}
 
-	file := path.Join(homedir, ".go-proxmox.json")
+	if file == "" {
+		file = path.Join(homedir, ".go-proxmox.json")
+	}
 	content, err := ioutil.ReadFile(file)
 	var config ProxmoxConfig
 	json.Unmarshal(content, &config)
