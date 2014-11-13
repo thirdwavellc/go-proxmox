@@ -1,7 +1,10 @@
 default: build
 
-build: clean
+build: test clean
 	mkdir bin && cd bin && gox ../
+
+test:
+	go test
 
 clean:
 	rm -rf ./bin

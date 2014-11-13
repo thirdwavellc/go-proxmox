@@ -6,12 +6,17 @@ import (
 	"reflect"
 )
 
+// PrintError prints the error in a standardized format, and exits with
+// return status 1.
 func PrintError(err error) {
 	fmt.Println("There was an error...")
 	fmt.Printf("Error: %v", err)
 	os.Exit(1)
 }
 
+// PrintDataSlice uses an empty interface/reflection to print any slice
+// of any struct type. This allows the data returned from the Proxmox API
+// to be printed in a standardized format.
 func PrintDataSlice(data interface{}) {
 	d := reflect.ValueOf(data)
 
@@ -27,6 +32,8 @@ func PrintDataSlice(data interface{}) {
 	}
 }
 
+// PrintDataStruct uses an empty interface/reflection to print any single
+// struct in a standardized format.
 func PrintDataStruct(data interface{}) {
 	d := reflect.ValueOf(data)
 	typeOfT := d.Type()
