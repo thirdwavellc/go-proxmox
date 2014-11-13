@@ -7,16 +7,20 @@ import (
 	"net/url"
 )
 
-type AuthRequest struct {
+// AuthResponse is the wrapper struct for the auth JSON response.
+type AuthResponse struct {
 	Data AuthInfo
 }
 
+// AuthInfo maps to the JSON response for creating an auth ticket.
 type AuthInfo struct {
 	CSRFPreventionToken string
 	Ticket              string
 	Username            string
 }
 
+// GetAuth requests a new auth ticket, storing the information in the
+// corresponding Proxmox struct.
 func (p Proxmox) GetAuth() AuthInfo {
 	p.api_endpoint = "/api2/json/access/ticket"
 	values := make(url.Values)
@@ -34,7 +38,7 @@ func (p Proxmox) GetAuth() AuthInfo {
 		PrintError(err)
 	}
 
-	var auth AuthRequest
+	var auth AuthResponse
 	json.Unmarshal(body, &auth)
 
 	return auth.Data
