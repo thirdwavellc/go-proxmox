@@ -1,1 +1,3 @@
 go-proxmox*
+
+config/*.json
