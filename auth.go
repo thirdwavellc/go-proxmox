@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
@@ -22,21 +20,11 @@ type AuthInfo struct {
 // GetAuth requests a new auth ticket, storing the information in the
 // corresponding Proxmox struct.
 func (p Proxmox) GetAuth() AuthInfo {
-	p.api_endpoint = "/api2/json/access/ticket"
+	endpoint_url := "/api2/json/access/ticket"
 	values := make(url.Values)
 	values.Set("username", p.user)
 	values.Set("password", p.password)
-	resp, err := http.PostForm(p.Url(), values)
-	if err != nil {
-		PrintError(err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		PrintError(err)
-	}
+	body := p.PostContent(endpoint_url, values)
 
 	var auth AuthResponse
 	json.Unmarshal(body, &auth)

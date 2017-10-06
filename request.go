@@ -2,18 +2,19 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
 )
 
-func (p Proxmox) Url() string {
-	return p.host + p.api_endpoint
+func (p Proxmox) BuildUrl(endpoint_url string) string {
+	return p.host + endpoint_url
 }
 
-func (p Proxmox) GetContent() []byte {
-	req, err := http.NewRequest("GET", p.Url(), nil)
+func (p Proxmox) GetContent(endpoint_url string) []byte {
+	req, err := http.NewRequest("GET", p.BuildUrl(endpoint_url), nil)
 	if err != nil {
 		PrintError(err)
 	}
@@ -21,7 +22,12 @@ func (p Proxmox) GetContent() []byte {
 	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
 	req.AddCookie(&cookie)
 
-	client := &http.Client{}
+	// TODO: remove me or refactor to be optional
+	// This is only needed for testing local instance with self-signed cert
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 	resp, err := client.Do(req)
 	if err != nil {
 		PrintError(err)
@@ -37,34 +43,41 @@ func (p Proxmox) GetContent() []byte {
 	return body
 }
 
-func (p Proxmox) PostContent(payload url.Values) []byte {
-	body := p.SendContent("POST", payload)
+func (p Proxmox) PostContent(endpoint_url string, payload url.Values) []byte {
+	body := p.SendContent("POST", endpoint_url, payload)
 	return body
 }
 
-func (p Proxmox) PutContent(payload url.Values) []byte {
-	body := p.SendContent("PUT", payload)
+func (p Proxmox) PutContent(endpoint_url string, payload url.Values) []byte {
+	body := p.SendContent("PUT", endpoint_url, payload)
 	return body
 }
 
-func (p Proxmox) DeleteContent(payload url.Values) []byte {
-	body := p.SendContent("DELETE", payload)
+func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) []byte {
+	body := p.SendContent("DELETE", endpoint_url, payload)
 	return body
 }
 
-func (p Proxmox) SendContent(method string, payload url.Values) []byte {
-	request, err := http.NewRequest(method, p.Url(), bytes.NewBufferString(payload.Encode()))
+func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Values) []byte {
+	request, err := http.NewRequest(method, p.BuildUrl(endpoint_url), bytes.NewBufferString(payload.Encode()))
 	if err != nil {
 		PrintError(err)
 	}
 
-	request.Header.Add("CSRFPreventionToken", p.auth.CSRFPreventionToken)
+	if p.auth.Ticket != "" {
+		request.Header.Add("CSRFPreventionToken", p.auth.CSRFPreventionToken)
 
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
-		Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
-	request.AddCookie(&cookie)
+		cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
+			Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+		request.AddCookie(&cookie)
+	}
 
-	client := &http.Client{}
+	// TODO: remove me or refactor to be optional
+	// This is only needed for testing local instance with self-signed cert
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 	if err != nil {
 		PrintError(err)

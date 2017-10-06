@@ -140,17 +140,8 @@ func main() {
 		req.Node = options.node
 		req.VMID = options.vmid
 		req.OsTemplate = options.ostemplate
-		fmt.Printf("Creating container")
 		upid := proxmox.CreateContainer(req)
-		statusRequest := NodeTaskStatusRequest{}
-		statusRequest.Node = options.node
-		statusRequest.UPID = upid
-		task := proxmox.CheckNodeTaskStatus(statusRequest)
-		if task.ExitStatus == "OK" {
-			fmt.Println("Container successfully created!")
-		} else {
-			fmt.Println("Exit Status: %s", task.ExitStatus)
-		}
+		fmt.Println(upid)
 	case "deleteContainer":
 		request := &ContainerRequest{}
 		request.Node = options.node

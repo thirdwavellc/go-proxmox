@@ -20,8 +20,8 @@ type ClusterNode struct {
 }
 
 func (p Proxmox) GetClusterStatus() []ClusterNode {
-	p.api_endpoint = "/api2/json/cluster/status"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/cluster/status"
+	body := p.GetContent(endpoint_url)
 	var cluster Cluster
 	json.Unmarshal(body, &cluster)
 	return cluster.Data
@@ -44,8 +44,8 @@ type ClusterTask struct {
 }
 
 func (p Proxmox) GetClusterTasks() []ClusterTask {
-	p.api_endpoint = "/api2/json/cluster/tasks"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/cluster/tasks"
+	body := p.GetContent(endpoint_url)
 	var clusterTasks ClusterTaskList
 	json.Unmarshal(body, &clusterTasks)
 	return clusterTasks.Data
@@ -69,8 +69,8 @@ type ClusterBackupScheduleItem struct {
 }
 
 func (p Proxmox) GetClusterBackupSchedule() []ClusterBackupScheduleItem {
-	p.api_endpoint = "/api2/json/cluster/backup"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/cluster/backup"
+	body := p.GetContent(endpoint_url)
 	var clusterBackupSchedule ClusterBackupSchedule
 	json.Unmarshal(body, &clusterBackupSchedule)
 	return clusterBackupSchedule.Data

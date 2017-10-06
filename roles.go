@@ -14,8 +14,8 @@ type Role struct {
 }
 
 func (p Proxmox) GetRoles() []Role {
-	p.api_endpoint = "/api2/json/access/roles"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/access/roles"
+	body := p.GetContent(endpoint_url)
 	var roles RoleList
 	json.Unmarshal(body, &roles)
 	return roles.Data
@@ -52,8 +52,8 @@ type RoleConfig struct {
 }
 
 func (p Proxmox) GetRoleConfig(role Role) RoleConfig {
-	p.api_endpoint = "/api2/json/access/roles/" + role.RoleId
-	body := p.GetContent()
+	endpoint_url := "/api2/json/access/roles/" + role.RoleId
+	body := p.GetContent(endpoint_url)
 	var roleConfig RoleConfigList
 	json.Unmarshal(body, &roleConfig)
 	return roleConfig.Data

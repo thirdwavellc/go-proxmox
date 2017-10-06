@@ -25,8 +25,8 @@ type Node struct {
 }
 
 func (p Proxmox) GetNodes() []Node {
-	p.api_endpoint = "/api2/json/nodes"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/nodes"
+	body := p.GetContent(endpoint_url)
 	var nodes NodeList
 	json.Unmarshal(body, &nodes)
 	return nodes.Data
@@ -55,8 +55,8 @@ type NodeTaskStatusRequest struct {
 }
 
 func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) NodeTaskStatus {
-	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/tasks/" + req.UPID + "/status"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/tasks/" + req.UPID + "/status"
+	body := p.GetContent(endpoint_url)
 	var task NodeTaskStatusList
 	json.Unmarshal(body, &task)
 	return task.Data

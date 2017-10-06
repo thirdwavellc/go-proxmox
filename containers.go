@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 )
 
@@ -34,8 +33,8 @@ type Container struct {
 }
 
 func (p Proxmox) GetContainers() []Container {
-	p.api_endpoint = "/api2/json/nodes/" + p.node + "/openvz"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/nodes/" + p.node + "/lxc"
+	body := p.GetContent(endpoint_url)
 	var containers ContainerList
 	json.Unmarshal(body, &containers)
 	return containers.Data
@@ -69,13 +68,9 @@ type ContainerRequest struct {
 	VMID       string `json:"vmid"`
 }
 
-func (r ContainerRequest) FormatTemplate() string {
-	return fmt.Sprintf("local:vztmpl/%s.tar.gz", r.OsTemplate)
-}
-
 func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
-	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz/" + req.VMID + "/config"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
+	body := p.GetContent(endpoint_url)
 	var containerConfig ContainerConfigList
 	json.Unmarshal(body, &containerConfig)
 	return containerConfig.Data
@@ -86,24 +81,23 @@ type ContainerResponse struct {
 }
 
 func (p Proxmox) CreateContainer(req *ContainerRequest) string {
-	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz"
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
 
 	payload := url.Values{}
-	payload.Add("ostemplate", req.FormatTemplate())
+	payload.Add("ostemplate", req.OsTemplate)
 	payload.Add("vmid", req.VMID)
 
-	body := p.PostContent(payload)
+	body := p.PostContent(endpoint_url, payload)
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
 	return response.Data
 }
 
 func (p Proxmox) DeleteContainer(req *ContainerRequest) string {
-	p.api_endpoint = "/api2/json/nodes/" + req.Node + "/openvz/" + req.VMID
-
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID
 	payload := url.Values{}
 
-	body := p.DeleteContent(payload)
+	body := p.DeleteContent(endpoint_url, payload)
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
 	return response.Data

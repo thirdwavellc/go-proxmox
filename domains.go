@@ -15,8 +15,8 @@ type Domain struct {
 }
 
 func (p Proxmox) GetDomains() []Domain {
-	p.api_endpoint = "/api2/json/access/domains"
-	body := p.GetContent()
+	endpoint_url := "/api2/json/access/domains"
+	body := p.GetContent(endpoint_url)
 	var domains DomainList
 	json.Unmarshal(body, &domains)
 	return domains.Data
@@ -34,8 +34,8 @@ type RealmConfig struct {
 }
 
 func (p Proxmox) GetRealmConfig(domain Domain) RealmConfig {
-	p.api_endpoint = "/api2/json/access/domains/" + domain.Realm
-	body := p.GetContent()
+	endpoint_url := "/api2/json/access/domains/" + domain.Realm
+	body := p.GetContent(endpoint_url)
 	var realmConfig RealmConfigList
 	json.Unmarshal(body, &realmConfig)
 	return realmConfig.Data
