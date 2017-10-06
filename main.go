@@ -25,6 +25,7 @@ type Options struct {
 	ip_address string
 	memory     int
 	swap       int
+	datastore  string
 }
 
 func getOpts() Options {
@@ -48,6 +49,7 @@ func getOpts() Options {
 	flag.StringVar(&options.ip_address, "ip-address", "", "IP Address")
 	flag.IntVar(&options.memory, "memory", 0, "Memory")
 	flag.IntVar(&options.swap, "swap", 0, "Swap")
+	flag.StringVar(&options.datastore, "datastore", "", "Datastore identifier")
 
 	flag.Parse()
 
@@ -157,6 +159,12 @@ func main() {
 		} else {
 			fmt.Println("Exit Status: %s", task.ExitStatus)
 		}
+	case "getNodeDatastores":
+		datastores := proxmox.GetNodeDatastores(options.node)
+		PrintDataSlice(datastores)
+	case "getNodeDatastoreContent":
+		content := proxmox.GetNodeDatastoreContent(options.node, options.datastore)
+		PrintDataSlice(content)
 	default:
 		fmt.Printf("Unsupported action: %s", options.action)
 		os.Exit(1)
