@@ -50,11 +50,12 @@ type ContainerConfig struct {
 	Digest         string
 	Disk           int
 	Hostname       string
+	Net0           string
 	IP_Address     string
 	Memory         int
 	NameServer     string
 	OnBoot         int
-	OSTemplate     string
+	OSTemplate     string `json:"ostemplate"`
 	QuotaTime      int
 	QuotaUGIDLimit int
 	SearchDomain   string
@@ -66,6 +67,8 @@ type ContainerRequest struct {
 	Node       string `json:"node"`
 	OsTemplate string `json:"ostemplate"`
 	VMID       string `json:"vmid"`
+	Net0       string `json:"net0"`
+	Storage    string `json:"storage"`
 }
 
 func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
@@ -86,6 +89,7 @@ func (p Proxmox) CreateContainer(req *ContainerRequest) string {
 	payload := url.Values{}
 	payload.Add("ostemplate", req.OsTemplate)
 	payload.Add("vmid", req.VMID)
+	payload.Add("storage", req.Storage)
 
 	body := p.PostContent(endpoint_url, payload)
 	var response ContainerResponse

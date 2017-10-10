@@ -26,6 +26,8 @@ type Options struct {
 	memory     int
 	swap       int
 	datastore  string
+	net0       string
+	storage    string
 }
 
 func getOpts() Options {
@@ -50,6 +52,8 @@ func getOpts() Options {
 	flag.IntVar(&options.memory, "memory", 0, "Memory")
 	flag.IntVar(&options.swap, "swap", 0, "Swap")
 	flag.StringVar(&options.datastore, "datastore", "", "Datastore identifier")
+	flag.StringVar(&options.net0, "net0", "", "Network interface 0 config")
+	flag.StringVar(&options.storage, "storage", "", "Storage identifier")
 
 	flag.Parse()
 
@@ -142,8 +146,18 @@ func main() {
 		req.Node = options.node
 		req.VMID = options.vmid
 		req.OsTemplate = options.ostemplate
+		req.Net0 = options.net0
+		req.Storage = options.storage
 		upid := proxmox.CreateContainer(req)
-		fmt.Println(upid)
+		statusRequest := NodeTaskStatusRequest{}
+		statusRequest.Node = options.node
+		statusRequest.UPID = upid
+		task := proxmox.CheckNodeTaskStatus(statusRequest)
+		if task.ExitStatus == "OK" {
+			fmt.Println("Container successfully created!")
+		} else {
+			fmt.Println("Exit Status: %s", task.ExitStatus)
+		}
 	case "deleteContainer":
 		request := &ContainerRequest{}
 		request.Node = options.node
