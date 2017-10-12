@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/google/go-querystring/query"
 	"net/url"
 )
 
@@ -64,11 +65,11 @@ type ContainerConfig struct {
 }
 
 type ContainerRequest struct {
-	Node       string `json:"node"`
-	OsTemplate string `json:"ostemplate"`
-	VMID       string `json:"vmid"`
-	Net0       string `json:"net0"`
-	Storage    string `json:"storage"`
+	Node       string `json:"node" url:"-"`
+	OsTemplate string `json:"ostemplate" url:"ostemplate"`
+	VMID       string `json:"vmid" url:"vmid"`
+	Net0       string `json:"net0" url:"net0,omitempty"`
+	Storage    string `json:"storage" url:"storage"`
 }
 
 func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
@@ -85,12 +86,7 @@ type ContainerResponse struct {
 
 func (p Proxmox) CreateContainer(req *ContainerRequest) string {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
-
-	payload := url.Values{}
-	payload.Add("ostemplate", req.OsTemplate)
-	payload.Add("vmid", req.VMID)
-	payload.Add("storage", req.Storage)
-
+	payload, _ := query.Values(req)
 	body := p.PostContent(endpoint_url, payload)
 	var response ContainerResponse
 	json.Unmarshal(body, &response)

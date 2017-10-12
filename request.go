@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	//"fmt"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -60,10 +60,10 @@ func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) []byte {
 }
 
 func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Values) []byte {
-	//fmt.Println("SendContent Request:")
-	//fmt.Printf("Method: %s\n", method)
-	//fmt.Printf("URL: %s\n", endpoint_url)
-	//fmt.Printf("Payload: %+v\n\n", payload)
+	fmt.Println("SendContent Request:")
+	fmt.Printf("Method: %s\n", method)
+	fmt.Printf("URL: %s\n", endpoint_url)
+	fmt.Printf("Payload: %+v\n\n", payload)
 
 	request, err := http.NewRequest(method, p.BuildUrl(endpoint_url), bytes.NewBufferString(payload.Encode()))
 	if err != nil {
@@ -89,8 +89,8 @@ func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Val
 		PrintError(err)
 	}
 
-	//fmt.Printf("SendContent Response: %+v\n", resp)
-	//fmt.Println("----------------------------------------------------------------------------")
+	fmt.Printf("SendContent Response: %+v\n", resp)
+	fmt.Println("----------------------------------------------------------------------------")
 
 	defer resp.Body.Close()
 
