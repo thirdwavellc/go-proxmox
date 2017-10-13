@@ -148,13 +148,13 @@ func main() {
 		containers := proxmox.GetContainers()
 		PrintDataSlice(containers)
 	case "getContainerConfig":
-		var req = ContainerRequest{}
+		req := &ExistingContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
 		containerConfig := proxmox.GetContainerConfig(req)
 		PrintDataStruct(containerConfig)
 	case "createContainer":
-		req := &ContainerRequest{}
+		req := &NewContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
 		req.OsTemplate = options.os_template
@@ -179,8 +179,26 @@ func main() {
 		} else {
 			fmt.Println("Exit Status: %s", task.ExitStatus)
 		}
+	case "updateContainer":
+		req := &ExistingContainerRequest{}
+		req.Node = options.node
+		req.VMID = options.vmid
+		req.OsTemplate = options.os_template
+		req.Net0 = options.net0
+		req.Storage = options.storage
+		req.RootFs = options.root_fs
+		req.Cores = options.cores
+		req.Memory = options.memory
+		req.Swap = options.swap
+		req.Hostname = options.hostname
+		req.OnBoot = options.on_boot
+		req.Password = options.root_password
+		req.SshPublicKeys = options.ssh_public_keys
+		req.Unprivileged = options.unprivileged
+		proxmox.UpdateContainer(req)
+		// TODO: handle response
 	case "deleteContainer":
-		request := &ContainerRequest{}
+		request := &ExistingContainerRequest{}
 		request.Node = options.node
 		request.VMID = options.vmid
 		fmt.Printf("Deleting container")

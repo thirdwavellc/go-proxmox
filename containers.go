@@ -64,13 +64,13 @@ type ContainerConfig struct {
 	Swap           int
 }
 
-type ContainerRequest struct {
+type NewContainerRequest struct {
 	Node          string `json:"node" url:"-"`
-	OsTemplate    string `json:"ostemplate" url:"ostemplate"`
+	OsTemplate    string `json:"ostemplate" url:"ostemplate,omitempty"`
 	VMID          string `json:"vmid" url:"vmid"`
 	Net0          string `json:"net0" url:"net0,omitempty"`
 	Storage       string `json:"storage" url:"storage,omitempty"`
-	RootFs        string `json:"rootfs" url:"rootfs"`
+	RootFs        string `json:"rootfs" url:"rootfs,omitempty"`
 	Cores         int    `json:"cores" url:"cores,omitempty"`
 	Memory        int    `json:"memory" url:"memory,omitempty"`
 	Swap          int    `json:"swap" url:"swap,omitempty"`
@@ -81,7 +81,24 @@ type ContainerRequest struct {
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 }
 
-func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
+type ExistingContainerRequest struct {
+	Node          string `json:"node" url:"-"`
+	OsTemplate    string `json:"ostemplate" url:"ostemplate,omitempty"`
+	VMID          string `json:"vmid" url:"-"`
+	Net0          string `json:"net0" url:"net0,omitempty"`
+	Storage       string `json:"storage" url:"storage,omitempty"`
+	RootFs        string `json:"rootfs" url:"rootfs,omitempty"`
+	Cores         int    `json:"cores" url:"cores,omitempty"`
+	Memory        int    `json:"memory" url:"memory,omitempty"`
+	Swap          int    `json:"swap" url:"swap,omitempty"`
+	Hostname      string `json:"hostname" url:"hostname,omitempty"`
+	OnBoot        int    `json:"onboot" url:"onboot,omitempty"`
+	Password      string `json:"password" url:"password,omitempty"`
+	SshPublicKeys string `json:"ssh-public-keys" url:"ssh-public-keys,omitempty"`
+	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
+}
+
+func (p Proxmox) GetContainerConfig(req *ExistingContainerRequest) ContainerConfig {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
 	body := p.GetContent(endpoint_url)
 	var containerConfig ContainerConfigList
@@ -93,7 +110,7 @@ type ContainerResponse struct {
 	Data string
 }
 
-func (p Proxmox) CreateContainer(req *ContainerRequest) string {
+func (p Proxmox) CreateContainer(req *NewContainerRequest) string {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
 	payload, _ := query.Values(req)
 	body := p.PostContent(endpoint_url, payload)
@@ -102,10 +119,18 @@ func (p Proxmox) CreateContainer(req *ContainerRequest) string {
 	return response.Data
 }
 
-func (p Proxmox) DeleteContainer(req *ContainerRequest) string {
+func (p Proxmox) UpdateContainer(req *ExistingContainerRequest) string {
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
+	payload, _ := query.Values(req)
+	body := p.PutContent(endpoint_url, payload)
+	var response ContainerResponse
+	json.Unmarshal(body, &response)
+	return response.Data
+}
+
+func (p Proxmox) DeleteContainer(req *ExistingContainerRequest) string {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID
 	payload := url.Values{}
-
 	body := p.DeleteContent(endpoint_url, payload)
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
