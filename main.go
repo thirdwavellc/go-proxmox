@@ -7,27 +7,33 @@ import (
 )
 
 type Options struct {
-	configFile string
-	host       string
-	user       string
-	password   string
-	action     string
-	realm      string
-	group_id   string
-	role_id    string
-	node       string
-	upid       string
-	vmid       string
-	ostemplate string
-	cpus       int
-	disk       int
-	hostname   string
-	ip_address string
-	memory     int
-	swap       int
-	datastore  string
-	net0       string
-	storage    string
+	configFile      string
+	host            string
+	user            string
+	password        string
+	action          string
+	realm           string
+	group_id        string
+	role_id         string
+	node            string
+	upid            string
+	vmid            string
+	os_template     string
+	cpus            int
+	disk            int
+	hostname        string
+	ip_address      string
+	memory          int
+	swap            int
+	datastore       string
+	net0            string
+	storage         string
+	root_fs         string
+	cores           int
+	on_boot         int
+	root_password   string
+	ssh_public_keys string
+	unprivileged    int
 }
 
 func getOpts() Options {
@@ -44,16 +50,22 @@ func getOpts() Options {
 	flag.StringVar(&options.node, "node", "", "Proxmox node")
 	flag.StringVar(&options.upid, "upid", "", "Proxmox task UPID")
 	flag.StringVar(&options.vmid, "vmid", "", "OpenVZ container VMID")
-	flag.StringVar(&options.ostemplate, "ostemplate", "", "OpenVZ container template")
+	flag.StringVar(&options.os_template, "os-template", "", "OpenVZ container template")
 	flag.IntVar(&options.cpus, "cpus", 0, "Number of CPUs")
 	flag.IntVar(&options.disk, "disk", 0, "Disk size")
 	flag.StringVar(&options.hostname, "hostname", "", "Hostname")
 	flag.StringVar(&options.ip_address, "ip-address", "", "IP Address")
-	flag.IntVar(&options.memory, "memory", 0, "Memory")
-	flag.IntVar(&options.swap, "swap", 0, "Swap")
+	flag.IntVar(&options.memory, "memory", 512, "Memory")
+	flag.IntVar(&options.swap, "swap", 512, "Swap")
 	flag.StringVar(&options.datastore, "datastore", "", "Datastore identifier")
 	flag.StringVar(&options.net0, "net0", "", "Network interface 0 config")
 	flag.StringVar(&options.storage, "storage", "", "Storage identifier")
+	flag.StringVar(&options.root_fs, "root-fs", "", "Root Filesystem")
+	flag.IntVar(&options.cores, "cores", 1, "CPU Cores")
+	flag.IntVar(&options.on_boot, "on-boot", 0, "Startup on boot")
+	flag.StringVar(&options.root_password, "root-password", "", "Root password")
+	flag.StringVar(&options.ssh_public_keys, "ssh-public-keys", "", "SSH Public Keys")
+	flag.IntVar(&options.unprivileged, "unprivileged", 0, "Unprivileged user")
 
 	flag.Parse()
 
@@ -145,9 +157,18 @@ func main() {
 		req := &ContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
-		req.OsTemplate = options.ostemplate
+		req.OsTemplate = options.os_template
 		req.Net0 = options.net0
 		req.Storage = options.storage
+		req.RootFs = options.root_fs
+		req.Cores = options.cores
+		req.Memory = options.memory
+		req.Swap = options.swap
+		req.Hostname = options.hostname
+		req.OnBoot = options.on_boot
+		req.Password = options.root_password
+		req.SshPublicKeys = options.ssh_public_keys
+		req.Unprivileged = options.unprivileged
 		upid := proxmox.CreateContainer(req)
 		statusRequest := NodeTaskStatusRequest{}
 		statusRequest.Node = options.node

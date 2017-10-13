@@ -65,11 +65,20 @@ type ContainerConfig struct {
 }
 
 type ContainerRequest struct {
-	Node       string `json:"node" url:"-"`
-	OsTemplate string `json:"ostemplate" url:"ostemplate"`
-	VMID       string `json:"vmid" url:"vmid"`
-	Net0       string `json:"net0" url:"net0,omitempty"`
-	Storage    string `json:"storage" url:"storage"`
+	Node          string `json:"node" url:"-"`
+	OsTemplate    string `json:"ostemplate" url:"ostemplate"`
+	VMID          string `json:"vmid" url:"vmid"`
+	Net0          string `json:"net0" url:"net0,omitempty"`
+	Storage       string `json:"storage" url:"storage,omitempty"`
+	RootFs        string `json:"rootfs" url:"rootfs"`
+	Cores         int    `json:"cores" url:"cores,omitempty"`
+	Memory        int    `json:"memory" url:"memory,omitempty"`
+	Swap          int    `json:"swap" url:"swap,omitempty"`
+	Hostname      string `json:"hostname" url:"hostname,omitempty"`
+	OnBoot        int    `json:"onboot" url:"onboot,omitempty"`
+	Password      string `json:"password" url:"password,omitempty"`
+	SshPublicKeys string `json:"ssh-public-keys" url:"ssh-public-keys,omitempty"`
+	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 }
 
 func (p Proxmox) GetContainerConfig(req ContainerRequest) ContainerConfig {
