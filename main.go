@@ -177,7 +177,7 @@ func main() {
 		if task.ExitStatus == "OK" {
 			fmt.Println("Container successfully created!")
 		} else {
-			fmt.Println("Exit Status: %s", task.ExitStatus)
+			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "updateContainer":
 		req := &ExistingContainerRequest{}
@@ -210,7 +210,7 @@ func main() {
 		if task.ExitStatus == "OK" {
 			fmt.Println("Container successfully deleted!")
 		} else {
-			fmt.Println("Exit Status: %s", task.ExitStatus)
+			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "getNodeDatastores":
 		datastores := proxmox.GetNodeDatastores(options.node)
