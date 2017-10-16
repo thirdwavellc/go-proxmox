@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -14,10 +15,10 @@ func (p Proxmox) BuildUrl(endpoint_url string) string {
 	return p.host + endpoint_url
 }
 
-func (p Proxmox) GetContent(endpoint_url string) []byte {
+func (p Proxmox) GetContent(endpoint_url string) ([]byte, error) {
 	req, err := http.NewRequest("GET", p.BuildUrl(endpoint_url), nil)
 	if err != nil {
-		PrintError(err)
+		return nil, err
 	}
 
 	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
@@ -31,35 +32,55 @@ func (p Proxmox) GetContent(endpoint_url string) []byte {
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(req)
 	if err != nil {
-		PrintError(err)
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		PrintError(err)
+	if resp.StatusCode != 200 {
+		err := errors.New(resp.Status)
+		return nil, err
 	}
 
-	return body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
-func (p Proxmox) PostContent(endpoint_url string, payload url.Values) []byte {
-	body := p.SendContent("POST", endpoint_url, payload)
-	return body
+func (p Proxmox) PostContent(endpoint_url string, payload url.Values) ([]byte, error) {
+	body, err := p.SendContent("POST", endpoint_url, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
-func (p Proxmox) PutContent(endpoint_url string, payload url.Values) []byte {
-	body := p.SendContent("PUT", endpoint_url, payload)
-	return body
+func (p Proxmox) PutContent(endpoint_url string, payload url.Values) ([]byte, error) {
+	body, err := p.SendContent("PUT", endpoint_url, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
-func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) []byte {
-	body := p.SendContent("DELETE", endpoint_url, payload)
-	return body
+func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) ([]byte, error) {
+	body, err := p.SendContent("DELETE", endpoint_url, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
-func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Values) []byte {
+func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Values) ([]byte, error) {
 	fmt.Println("SendContent Request:")
 	fmt.Printf("Method: %s\n", method)
 	fmt.Printf("URL: %s\n", endpoint_url)
@@ -67,7 +88,7 @@ func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Val
 
 	request, err := http.NewRequest(method, p.BuildUrl(endpoint_url), bytes.NewBufferString(payload.Encode()))
 	if err != nil {
-		PrintError(err)
+		return nil, err
 	}
 
 	if p.auth.Ticket != "" {
@@ -86,7 +107,12 @@ func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Val
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 	if err != nil {
-		PrintError(err)
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		err := errors.New(resp.Status)
+		return nil, err
 	}
 
 	fmt.Printf("SendContent Response: %+v\n", resp)
@@ -97,7 +123,8 @@ func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Val
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		PrintError(err)
+		return body, err
 	}
 
-	return body
+	return body, nil
 }

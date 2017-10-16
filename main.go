@@ -75,7 +75,11 @@ func getOpts() Options {
 func main() {
 	options := getOpts()
 
-	config := ReadProxmoxConfig(options.configFile)
+	config, err := ReadProxmoxConfig(options.configFile)
+
+	if err != nil {
+		PrintError(err)
+	}
 
 	if config.Host != "" && options.host == "" {
 		options.host = config.Host
@@ -94,64 +98,139 @@ func main() {
 	proxmox.host = options.host
 	proxmox.user = options.user
 	proxmox.password = options.password
-	proxmox.auth = proxmox.GetAuth()
+	proxmox.auth, err = proxmox.GetAuth()
+
+	if err != nil {
+		PrintError(err)
+	}
 
 	switch options.action {
 	case "getDomains":
-		domains := proxmox.GetDomains()
+		domains, err := proxmox.GetDomains()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(domains)
 	case "getRealmConfig":
 		domain := Domain{}
 		domain.Realm = options.realm
-		config := proxmox.GetRealmConfig(domain)
+		config, err := proxmox.GetRealmConfig(domain)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataStruct(config)
 	case "getGroups":
-		groups := proxmox.GetGroups()
+		groups, err := proxmox.GetGroups()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(groups)
 	case "getGroupConfig":
 		var group Group
 		group.GroupId = options.group_id
-		config := proxmox.GetGroupConfig(group)
+		config, err := proxmox.GetGroupConfig(group)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataStruct(config)
 	case "createGroup":
 		var group Group
 		group.GroupId = options.group_id
-		proxmox.CreateGroup(group)
+		resp, err := proxmox.CreateGroup(group)
+
+		if err != nil {
+			PrintError(err)
+		}
+
+		PrintDataSlice(resp)
 	case "getRoles":
-		roles := proxmox.GetRoles()
+		roles, err := proxmox.GetRoles()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(roles)
 	case "getRoleConfig":
 		var role Role
 		role.RoleId = options.role_id
-		config := proxmox.GetRoleConfig(role)
+		config, err := proxmox.GetRoleConfig(role)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataStruct(config)
 	case "getClusterStatus":
-		cluster := proxmox.GetClusterStatus()
+		cluster, err := proxmox.GetClusterStatus()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(cluster)
 	case "getClusterTasks":
-		clusterTasks := proxmox.GetClusterTasks()
+		clusterTasks, err := proxmox.GetClusterTasks()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(clusterTasks)
 	case "getClusterBackupSchedule":
-		clusterBackupSchedule := proxmox.GetClusterBackupSchedule()
+		clusterBackupSchedule, err := proxmox.GetClusterBackupSchedule()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(clusterBackupSchedule)
 	case "getNodes":
-		nodes := proxmox.GetNodes()
+		nodes, err := proxmox.GetNodes()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(nodes)
 	case "getNodeTaskStatus":
 		request := NodeTaskStatusRequest{}
 		request.Node = options.node
 		request.UPID = options.upid
-		status := proxmox.GetNodeTaskStatus(request)
+		status, err := proxmox.GetNodeTaskStatus(request)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataStruct(status)
 	case "getContainers":
 		proxmox.node = options.node
-		containers := proxmox.GetContainers()
+		containers, err := proxmox.GetContainers()
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(containers)
 	case "getContainerConfig":
 		req := &ExistingContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
-		containerConfig := proxmox.GetContainerConfig(req)
+		containerConfig, err := proxmox.GetContainerConfig(req)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataStruct(containerConfig)
 	case "createContainer":
 		req := &NewContainerRequest{}
@@ -169,11 +248,21 @@ func main() {
 		req.Password = options.root_password
 		req.SshPublicKeys = options.ssh_public_keys
 		req.Unprivileged = options.unprivileged
-		upid := proxmox.CreateContainer(req)
+		upid, err := proxmox.CreateContainer(req)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		statusRequest := NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
-		task := proxmox.CheckNodeTaskStatus(statusRequest)
+		task, err := proxmox.CheckNodeTaskStatus(statusRequest)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		if task.ExitStatus == "OK" {
 			fmt.Println("Container successfully created!")
 		} else {
@@ -195,28 +284,54 @@ func main() {
 		req.Password = options.root_password
 		req.SshPublicKeys = options.ssh_public_keys
 		req.Unprivileged = options.unprivileged
-		proxmox.UpdateContainer(req)
+		resp, err := proxmox.UpdateContainer(req)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		// TODO: handle response
+		fmt.Printf(resp)
 	case "deleteContainer":
 		request := &ExistingContainerRequest{}
 		request.Node = options.node
 		request.VMID = options.vmid
 		fmt.Printf("Deleting container")
-		upid := proxmox.DeleteContainer(request)
+		upid, err := proxmox.DeleteContainer(request)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		statusRequest := NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
-		task := proxmox.CheckNodeTaskStatus(statusRequest)
+		task, err := proxmox.CheckNodeTaskStatus(statusRequest)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		if task.ExitStatus == "OK" {
 			fmt.Println("Container successfully deleted!")
 		} else {
 			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "getNodeDatastores":
-		datastores := proxmox.GetNodeDatastores(options.node)
+		datastores, err := proxmox.GetNodeDatastores(options.node)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(datastores)
 	case "getNodeDatastoreContent":
-		content := proxmox.GetNodeDatastoreContent(options.node, options.datastore)
+		content, err := proxmox.GetNodeDatastoreContent(options.node, options.datastore)
+
+		if err != nil {
+			PrintError(err)
+		}
+
 		PrintDataSlice(content)
 	default:
 		fmt.Printf("Unsupported action: %s", options.action)

@@ -14,12 +14,17 @@ type Domain struct {
 	Type    string
 }
 
-func (p Proxmox) GetDomains() []Domain {
+func (p Proxmox) GetDomains() ([]Domain, error) {
 	endpoint_url := "/api2/json/access/domains"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var domains DomainList
 	json.Unmarshal(body, &domains)
-	return domains.Data
+	return domains.Data, nil
 }
 
 type RealmConfigList struct {
@@ -33,10 +38,15 @@ type RealmConfig struct {
 	Type    string
 }
 
-func (p Proxmox) GetRealmConfig(domain Domain) RealmConfig {
+func (p Proxmox) GetRealmConfig(domain Domain) (RealmConfig, error) {
 	endpoint_url := "/api2/json/access/domains/" + domain.Realm
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return RealmConfig{}, err
+	}
+
 	var realmConfig RealmConfigList
 	json.Unmarshal(body, &realmConfig)
-	return realmConfig.Data
+	return realmConfig.Data, nil
 }

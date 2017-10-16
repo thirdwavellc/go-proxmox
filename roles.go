@@ -13,12 +13,17 @@ type Role struct {
 	RoleId string
 }
 
-func (p Proxmox) GetRoles() []Role {
+func (p Proxmox) GetRoles() ([]Role, error) {
 	endpoint_url := "/api2/json/access/roles"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var roles RoleList
 	json.Unmarshal(body, &roles)
-	return roles.Data
+	return roles.Data, nil
 }
 
 type RoleConfigList struct {
@@ -51,10 +56,15 @@ type RoleConfig struct {
 	VMSnapshot        int `json:"VM.Snapshot"`
 }
 
-func (p Proxmox) GetRoleConfig(role Role) RoleConfig {
+func (p Proxmox) GetRoleConfig(role Role) (RoleConfig, error) {
 	endpoint_url := "/api2/json/access/roles/" + role.RoleId
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return RoleConfig{}, err
+	}
+
 	var roleConfig RoleConfigList
 	json.Unmarshal(body, &roleConfig)
-	return roleConfig.Data
+	return roleConfig.Data, nil
 }

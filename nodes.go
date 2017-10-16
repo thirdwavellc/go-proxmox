@@ -24,12 +24,17 @@ type Node struct {
 	Mem     int
 }
 
-func (p Proxmox) GetNodes() []Node {
+func (p Proxmox) GetNodes() ([]Node, error) {
 	endpoint_url := "/api2/json/nodes"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var nodes NodeList
 	json.Unmarshal(body, &nodes)
-	return nodes.Data
+	return nodes.Data, nil
 }
 
 type NodeTaskStatusList struct {
@@ -54,21 +59,30 @@ type NodeTaskStatusRequest struct {
 	UPID string `json:"upid"`
 }
 
-func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) NodeTaskStatus {
+func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/tasks/" + req.UPID + "/status"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return NodeTaskStatus{}, err
+	}
+
 	var task NodeTaskStatusList
 	json.Unmarshal(body, &task)
-	return task.Data
+	return task.Data, nil
 }
 
-func (p Proxmox) CheckNodeTaskStatus(req NodeTaskStatusRequest) NodeTaskStatus {
-	var task NodeTaskStatus
+func (p Proxmox) CheckNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
 	for {
-		task = p.GetNodeTaskStatus(req)
+		task, err := p.GetNodeTaskStatus(req)
+
+		if err != nil {
+			return NodeTaskStatus{}, err
+		}
+
 		if task.Status == "stopped" {
 			fmt.Printf("done.\n")
-			return task
+			return task, nil
 		} else {
 			fmt.Printf(".")
 			time.Sleep(time.Second)

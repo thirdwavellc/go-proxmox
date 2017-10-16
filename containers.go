@@ -33,12 +33,17 @@ type Container struct {
 	CPUs      int
 }
 
-func (p Proxmox) GetContainers() []Container {
+func (p Proxmox) GetContainers() ([]Container, error) {
 	endpoint_url := "/api2/json/nodes/" + p.node + "/lxc"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var containers ContainerList
 	json.Unmarshal(body, &containers)
-	return containers.Data
+	return containers.Data, nil
 }
 
 type ContainerConfigList struct {
@@ -98,41 +103,61 @@ type ExistingContainerRequest struct {
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 }
 
-func (p Proxmox) GetContainerConfig(req *ExistingContainerRequest) ContainerConfig {
+func (p Proxmox) GetContainerConfig(req *ExistingContainerRequest) (ContainerConfig, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return ContainerConfig{}, err
+	}
+
 	var containerConfig ContainerConfigList
 	json.Unmarshal(body, &containerConfig)
-	return containerConfig.Data
+	return containerConfig.Data, nil
 }
 
 type ContainerResponse struct {
 	Data string
 }
 
-func (p Proxmox) CreateContainer(req *NewContainerRequest) string {
+func (p Proxmox) CreateContainer(req *NewContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
 	payload, _ := query.Values(req)
-	body := p.PostContent(endpoint_url, payload)
+	body, err := p.PostContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
-	return response.Data
+	return response.Data, nil
 }
 
-func (p Proxmox) UpdateContainer(req *ExistingContainerRequest) string {
+func (p Proxmox) UpdateContainer(req *ExistingContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
 	payload, _ := query.Values(req)
-	body := p.PutContent(endpoint_url, payload)
+	body, err := p.PutContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
-	return response.Data
+	return response.Data, nil
 }
 
-func (p Proxmox) DeleteContainer(req *ExistingContainerRequest) string {
+func (p Proxmox) DeleteContainer(req *ExistingContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID
 	payload := url.Values{}
-	body := p.DeleteContent(endpoint_url, payload)
+	body, err := p.DeleteContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
 	var response ContainerResponse
 	json.Unmarshal(body, &response)
-	return response.Data
+	return response.Data, nil
 }

@@ -19,15 +19,19 @@ type AuthInfo struct {
 
 // GetAuth requests a new auth ticket, storing the information in the
 // corresponding Proxmox struct.
-func (p Proxmox) GetAuth() AuthInfo {
+func (p Proxmox) GetAuth() (AuthInfo, error) {
 	endpoint_url := "/api2/json/access/ticket"
 	values := make(url.Values)
 	values.Set("username", p.user)
 	values.Set("password", p.password)
-	body := p.PostContent(endpoint_url, values)
+	body, err := p.PostContent(endpoint_url, values)
+
+	if err != nil {
+		return AuthInfo{}, err
+	}
 
 	var auth AuthResponse
 	json.Unmarshal(body, &auth)
 
-	return auth.Data
+	return auth.Data, nil
 }

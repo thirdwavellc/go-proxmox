@@ -31,18 +31,28 @@ type NodeDatastoreContent struct {
 	Volid   string
 }
 
-func (p Proxmox) GetNodeDatastores(node string) []NodeDatastore {
+func (p Proxmox) GetNodeDatastores(node string) ([]NodeDatastore, error) {
 	endpoint_url := "/api2/json/nodes/" + node + "/storage"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var nodeDatastores NodeDatastoreList
 	json.Unmarshal(body, &nodeDatastores)
-	return nodeDatastores.Data
+	return nodeDatastores.Data, nil
 }
 
-func (p Proxmox) GetNodeDatastoreContent(node string, datastore string) []NodeDatastoreContent {
+func (p Proxmox) GetNodeDatastoreContent(node string, datastore string) ([]NodeDatastoreContent, error) {
 	endpoint_url := "/api2/json/nodes/" + node + "/storage/" + datastore + "/content"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var nodeDatastoreContent NodeDatastoreContentList
 	json.Unmarshal(body, &nodeDatastoreContent)
-	return nodeDatastoreContent.Data
+	return nodeDatastoreContent.Data, nil
 }

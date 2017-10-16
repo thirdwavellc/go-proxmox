@@ -13,12 +13,17 @@ type Group struct {
 	GroupId string `json:"groupid"`
 }
 
-func (p Proxmox) GetGroups() []Group {
+func (p Proxmox) GetGroups() ([]Group, error) {
 	endpoint_url := "/api2/json/access/groups"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var groups GroupList
 	json.Unmarshal(body, &groups)
-	return groups.Data
+	return groups.Data, nil
 }
 
 type GroupConfigList struct {
@@ -29,18 +34,28 @@ type GroupConfig struct {
 	Members []string
 }
 
-func (p Proxmox) GetGroupConfig(group Group) GroupConfig {
+func (p Proxmox) GetGroupConfig(group Group) (GroupConfig, error) {
 	endpoint_url := "/api2/json/access/groups/" + group.GroupId
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return GroupConfig{}, err
+	}
+
 	var groupConfig GroupConfigList
 	json.Unmarshal(body, &groupConfig)
-	return groupConfig.Data
+	return groupConfig.Data, nil
 }
 
-func (p Proxmox) CreateGroup(group Group) []byte {
+func (p Proxmox) CreateGroup(group Group) ([]byte, error) {
 	endpoint_url := "/api2/json/access/groups"
 	payload := url.Values{}
 	payload.Add("groupid", group.GroupId)
-	body := p.PostContent(endpoint_url, payload)
-	return body
+	body, err := p.PostContent(endpoint_url, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }

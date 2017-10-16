@@ -19,12 +19,17 @@ type ClusterNode struct {
 	Type   string
 }
 
-func (p Proxmox) GetClusterStatus() []ClusterNode {
+func (p Proxmox) GetClusterStatus() ([]ClusterNode, error) {
 	endpoint_url := "/api2/json/cluster/status"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var cluster Cluster
 	json.Unmarshal(body, &cluster)
-	return cluster.Data
+	return cluster.Data, nil
 }
 
 type ClusterTaskList struct {
@@ -43,12 +48,17 @@ type ClusterTask struct {
 	User      string
 }
 
-func (p Proxmox) GetClusterTasks() []ClusterTask {
+func (p Proxmox) GetClusterTasks() ([]ClusterTask, error) {
 	endpoint_url := "/api2/json/cluster/tasks"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var clusterTasks ClusterTaskList
 	json.Unmarshal(body, &clusterTasks)
-	return clusterTasks.Data
+	return clusterTasks.Data, nil
 }
 
 type ClusterBackupSchedule struct {
@@ -68,10 +78,15 @@ type ClusterBackupScheduleItem struct {
 	Storage   string
 }
 
-func (p Proxmox) GetClusterBackupSchedule() []ClusterBackupScheduleItem {
+func (p Proxmox) GetClusterBackupSchedule() ([]ClusterBackupScheduleItem, error) {
 	endpoint_url := "/api2/json/cluster/backup"
-	body := p.GetContent(endpoint_url)
+	body, err := p.GetContent(endpoint_url)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var clusterBackupSchedule ClusterBackupSchedule
 	json.Unmarshal(body, &clusterBackupSchedule)
-	return clusterBackupSchedule.Data
+	return clusterBackupSchedule.Data, nil
 }
