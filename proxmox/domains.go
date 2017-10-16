@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type Domain struct {
 	Type    string
 }
 
-func (p Proxmox) GetDomains() ([]Domain, error) {
+func (p ProxmoxClient) GetDomains() ([]Domain, error) {
 	endpoint_url := "/api2/json/access/domains"
 	body, err := p.GetContent(endpoint_url)
 
@@ -38,7 +38,7 @@ type RealmConfig struct {
 	Type    string
 }
 
-func (p Proxmox) GetRealmConfig(domain Domain) (RealmConfig, error) {
+func (p ProxmoxClient) GetRealmConfig(domain Domain) (RealmConfig, error) {
 	endpoint_url := "/api2/json/access/domains/" + domain.Realm
 	body, err := p.GetContent(endpoint_url)
 

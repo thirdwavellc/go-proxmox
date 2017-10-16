@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ type Role struct {
 	RoleId string
 }
 
-func (p Proxmox) GetRoles() ([]Role, error) {
+func (p ProxmoxClient) GetRoles() ([]Role, error) {
 	endpoint_url := "/api2/json/access/roles"
 	body, err := p.GetContent(endpoint_url)
 
@@ -56,7 +56,7 @@ type RoleConfig struct {
 	VMSnapshot        int `json:"VM.Snapshot"`
 }
 
-func (p Proxmox) GetRoleConfig(role Role) (RoleConfig, error) {
+func (p ProxmoxClient) GetRoleConfig(role Role) (RoleConfig, error) {
 	endpoint_url := "/api2/json/access/roles/" + role.RoleId
 	body, err := p.GetContent(endpoint_url)
 

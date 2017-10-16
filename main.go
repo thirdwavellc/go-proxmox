@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/thirdwavellc/go-proxmox/proxmox"
 	"os"
 )
 
@@ -75,10 +76,10 @@ func getOpts() Options {
 func main() {
 	options := getOpts()
 
-	config, err := ReadProxmoxConfig(options.configFile)
+	config, err := proxmox.ReadProxmoxConfig(options.configFile)
 
 	if err != nil {
-		PrintError(err)
+		proxmox.PrintError(err)
 	}
 
 	if config.Host != "" && options.host == "" {
@@ -94,146 +95,146 @@ func main() {
 		options.node = config.DefaultNode
 	}
 
-	proxmox := Proxmox{}
-	proxmox.host = options.host
-	proxmox.user = options.user
-	proxmox.password = options.password
-	proxmox.auth, err = proxmox.GetAuth()
+	client := proxmox.ProxmoxClient{}
+	client.Host = options.host
+	client.User = options.user
+	client.Password = options.password
+	client.Auth, err = client.GetAuth()
 
 	if err != nil {
-		PrintError(err)
+		proxmox.PrintError(err)
 	}
 
 	switch options.action {
 	case "getDomains":
-		domains, err := proxmox.GetDomains()
+		domains, err := client.GetDomains()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(domains)
+		proxmox.PrintDataSlice(domains)
 	case "getRealmConfig":
-		domain := Domain{}
+		domain := proxmox.Domain{}
 		domain.Realm = options.realm
-		config, err := proxmox.GetRealmConfig(domain)
+		config, err := client.GetRealmConfig(domain)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataStruct(config)
+		proxmox.PrintDataStruct(config)
 	case "getGroups":
-		groups, err := proxmox.GetGroups()
+		groups, err := client.GetGroups()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(groups)
+		proxmox.PrintDataSlice(groups)
 	case "getGroupConfig":
-		var group Group
+		var group proxmox.Group
 		group.GroupId = options.group_id
-		config, err := proxmox.GetGroupConfig(group)
+		config, err := client.GetGroupConfig(group)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataStruct(config)
+		proxmox.PrintDataStruct(config)
 	case "createGroup":
-		var group Group
+		var group proxmox.Group
 		group.GroupId = options.group_id
-		resp, err := proxmox.CreateGroup(group)
+		resp, err := client.CreateGroup(group)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(resp)
+		proxmox.PrintDataSlice(resp)
 	case "getRoles":
-		roles, err := proxmox.GetRoles()
+		roles, err := client.GetRoles()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(roles)
+		proxmox.PrintDataSlice(roles)
 	case "getRoleConfig":
-		var role Role
+		var role proxmox.Role
 		role.RoleId = options.role_id
-		config, err := proxmox.GetRoleConfig(role)
+		config, err := client.GetRoleConfig(role)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataStruct(config)
+		proxmox.PrintDataStruct(config)
 	case "getClusterStatus":
-		cluster, err := proxmox.GetClusterStatus()
+		cluster, err := client.GetClusterStatus()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(cluster)
+		proxmox.PrintDataSlice(cluster)
 	case "getClusterTasks":
-		clusterTasks, err := proxmox.GetClusterTasks()
+		clusterTasks, err := client.GetClusterTasks()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(clusterTasks)
+		proxmox.PrintDataSlice(clusterTasks)
 	case "getClusterBackupSchedule":
-		clusterBackupSchedule, err := proxmox.GetClusterBackupSchedule()
+		clusterBackupSchedule, err := client.GetClusterBackupSchedule()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(clusterBackupSchedule)
+		proxmox.PrintDataSlice(clusterBackupSchedule)
 	case "getNodes":
-		nodes, err := proxmox.GetNodes()
+		nodes, err := client.GetNodes()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(nodes)
+		proxmox.PrintDataSlice(nodes)
 	case "getNodeTaskStatus":
-		request := NodeTaskStatusRequest{}
+		request := proxmox.NodeTaskStatusRequest{}
 		request.Node = options.node
 		request.UPID = options.upid
-		status, err := proxmox.GetNodeTaskStatus(request)
+		status, err := client.GetNodeTaskStatus(request)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataStruct(status)
+		proxmox.PrintDataStruct(status)
 	case "getContainers":
-		proxmox.node = options.node
-		containers, err := proxmox.GetContainers()
+		client.Node = options.node
+		containers, err := client.GetContainers()
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(containers)
+		proxmox.PrintDataSlice(containers)
 	case "getContainerConfig":
-		req := &ExistingContainerRequest{}
+		req := &proxmox.ExistingContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
-		containerConfig, err := proxmox.GetContainerConfig(req)
+		containerConfig, err := client.GetContainerConfig(req)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataStruct(containerConfig)
+		proxmox.PrintDataStruct(containerConfig)
 	case "createContainer":
-		req := &NewContainerRequest{}
+		req := &proxmox.NewContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
 		req.OsTemplate = options.os_template
@@ -248,19 +249,19 @@ func main() {
 		req.Password = options.root_password
 		req.SshPublicKeys = options.ssh_public_keys
 		req.Unprivileged = options.unprivileged
-		upid, err := proxmox.CreateContainer(req)
+		upid, err := client.CreateContainer(req)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		statusRequest := NodeTaskStatusRequest{}
+		statusRequest := proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
-		task, err := proxmox.CheckNodeTaskStatus(statusRequest)
+		task, err := client.CheckNodeTaskStatus(statusRequest)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
 		if task.ExitStatus == "OK" {
@@ -269,7 +270,7 @@ func main() {
 			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "updateContainer":
-		req := &ExistingContainerRequest{}
+		req := &proxmox.ExistingContainerRequest{}
 		req.Node = options.node
 		req.VMID = options.vmid
 		req.OsTemplate = options.os_template
@@ -284,32 +285,32 @@ func main() {
 		req.Password = options.root_password
 		req.SshPublicKeys = options.ssh_public_keys
 		req.Unprivileged = options.unprivileged
-		resp, err := proxmox.UpdateContainer(req)
+		resp, err := client.UpdateContainer(req)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
 		// TODO: handle response
 		fmt.Printf(resp)
 	case "deleteContainer":
-		request := &ExistingContainerRequest{}
+		request := &proxmox.ExistingContainerRequest{}
 		request.Node = options.node
 		request.VMID = options.vmid
 		fmt.Printf("Deleting container")
-		upid, err := proxmox.DeleteContainer(request)
+		upid, err := client.DeleteContainer(request)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		statusRequest := NodeTaskStatusRequest{}
+		statusRequest := proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
-		task, err := proxmox.CheckNodeTaskStatus(statusRequest)
+		task, err := client.CheckNodeTaskStatus(statusRequest)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
 		if task.ExitStatus == "OK" {
@@ -318,21 +319,21 @@ func main() {
 			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "getNodeDatastores":
-		datastores, err := proxmox.GetNodeDatastores(options.node)
+		datastores, err := client.GetNodeDatastores(options.node)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(datastores)
+		proxmox.PrintDataSlice(datastores)
 	case "getNodeDatastoreContent":
-		content, err := proxmox.GetNodeDatastoreContent(options.node, options.datastore)
+		content, err := client.GetNodeDatastoreContent(options.node, options.datastore)
 
 		if err != nil {
-			PrintError(err)
+			proxmox.PrintError(err)
 		}
 
-		PrintDataSlice(content)
+		proxmox.PrintDataSlice(content)
 	default:
 		fmt.Printf("Unsupported action: %s", options.action)
 		os.Exit(1)

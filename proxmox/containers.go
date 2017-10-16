@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -33,8 +33,8 @@ type Container struct {
 	CPUs      int
 }
 
-func (p Proxmox) GetContainers() ([]Container, error) {
-	endpoint_url := "/api2/json/nodes/" + p.node + "/lxc"
+func (p ProxmoxClient) GetContainers() ([]Container, error) {
+	endpoint_url := "/api2/json/nodes/" + p.Node + "/lxc"
 	body, err := p.GetContent(endpoint_url)
 
 	if err != nil {
@@ -103,7 +103,7 @@ type ExistingContainerRequest struct {
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 }
 
-func (p Proxmox) GetContainerConfig(req *ExistingContainerRequest) (ContainerConfig, error) {
+func (p ProxmoxClient) GetContainerConfig(req *ExistingContainerRequest) (ContainerConfig, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
 	body, err := p.GetContent(endpoint_url)
 
@@ -120,7 +120,7 @@ type ContainerResponse struct {
 	Data string
 }
 
-func (p Proxmox) CreateContainer(req *NewContainerRequest) (string, error) {
+func (p ProxmoxClient) CreateContainer(req *NewContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
 	payload, _ := query.Values(req)
 	body, err := p.PostContent(endpoint_url, payload)
@@ -134,7 +134,7 @@ func (p Proxmox) CreateContainer(req *NewContainerRequest) (string, error) {
 	return response.Data, nil
 }
 
-func (p Proxmox) UpdateContainer(req *ExistingContainerRequest) (string, error) {
+func (p ProxmoxClient) UpdateContainer(req *ExistingContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
 	payload, _ := query.Values(req)
 	body, err := p.PutContent(endpoint_url, payload)
@@ -148,7 +148,7 @@ func (p Proxmox) UpdateContainer(req *ExistingContainerRequest) (string, error) 
 	return response.Data, nil
 }
 
-func (p Proxmox) DeleteContainer(req *ExistingContainerRequest) (string, error) {
+func (p ProxmoxClient) DeleteContainer(req *ExistingContainerRequest) (string, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID
 	payload := url.Values{}
 	body, err := p.DeleteContent(endpoint_url, payload)

@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -31,7 +31,7 @@ type NodeDatastoreContent struct {
 	Volid   string
 }
 
-func (p Proxmox) GetNodeDatastores(node string) ([]NodeDatastore, error) {
+func (p ProxmoxClient) GetNodeDatastores(node string) ([]NodeDatastore, error) {
 	endpoint_url := "/api2/json/nodes/" + node + "/storage"
 	body, err := p.GetContent(endpoint_url)
 
@@ -44,7 +44,7 @@ func (p Proxmox) GetNodeDatastores(node string) ([]NodeDatastore, error) {
 	return nodeDatastores.Data, nil
 }
 
-func (p Proxmox) GetNodeDatastoreContent(node string, datastore string) ([]NodeDatastoreContent, error) {
+func (p ProxmoxClient) GetNodeDatastoreContent(node string, datastore string) ([]NodeDatastoreContent, error) {
 	endpoint_url := "/api2/json/nodes/" + node + "/storage/" + datastore + "/content"
 	body, err := p.GetContent(endpoint_url)
 

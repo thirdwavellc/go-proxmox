@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -19,11 +19,11 @@ type AuthInfo struct {
 
 // GetAuth requests a new auth ticket, storing the information in the
 // corresponding Proxmox struct.
-func (p Proxmox) GetAuth() (AuthInfo, error) {
+func (p ProxmoxClient) GetAuth() (AuthInfo, error) {
 	endpoint_url := "/api2/json/access/ticket"
 	values := make(url.Values)
-	values.Set("username", p.user)
-	values.Set("password", p.password)
+	values.Set("username", p.User)
+	values.Set("password", p.Password)
 	body, err := p.PostContent(endpoint_url, values)
 
 	if err != nil {

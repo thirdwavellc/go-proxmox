@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 type MyStruct struct {
 	Name string

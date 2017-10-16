@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ type Node struct {
 	Mem     int
 }
 
-func (p Proxmox) GetNodes() ([]Node, error) {
+func (p ProxmoxClient) GetNodes() ([]Node, error) {
 	endpoint_url := "/api2/json/nodes"
 	body, err := p.GetContent(endpoint_url)
 
@@ -59,7 +59,7 @@ type NodeTaskStatusRequest struct {
 	UPID string `json:"upid"`
 }
 
-func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
+func (p ProxmoxClient) GetNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/tasks/" + req.UPID + "/status"
 	body, err := p.GetContent(endpoint_url)
 
@@ -72,7 +72,7 @@ func (p Proxmox) GetNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, e
 	return task.Data, nil
 }
 
-func (p Proxmox) CheckNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
+func (p ProxmoxClient) CheckNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskStatus, error) {
 	for {
 		task, err := p.GetNodeTaskStatus(req)
 

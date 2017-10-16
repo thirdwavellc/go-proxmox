@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -19,7 +19,7 @@ type ClusterNode struct {
 	Type   string
 }
 
-func (p Proxmox) GetClusterStatus() ([]ClusterNode, error) {
+func (p ProxmoxClient) GetClusterStatus() ([]ClusterNode, error) {
 	endpoint_url := "/api2/json/cluster/status"
 	body, err := p.GetContent(endpoint_url)
 
@@ -48,7 +48,7 @@ type ClusterTask struct {
 	User      string
 }
 
-func (p Proxmox) GetClusterTasks() ([]ClusterTask, error) {
+func (p ProxmoxClient) GetClusterTasks() ([]ClusterTask, error) {
 	endpoint_url := "/api2/json/cluster/tasks"
 	body, err := p.GetContent(endpoint_url)
 
@@ -78,7 +78,7 @@ type ClusterBackupScheduleItem struct {
 	Storage   string
 }
 
-func (p Proxmox) GetClusterBackupSchedule() ([]ClusterBackupScheduleItem, error) {
+func (p ProxmoxClient) GetClusterBackupSchedule() ([]ClusterBackupScheduleItem, error) {
 	endpoint_url := "/api2/json/cluster/backup"
 	body, err := p.GetContent(endpoint_url)
 

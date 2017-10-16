@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ type Group struct {
 	GroupId string `json:"groupid"`
 }
 
-func (p Proxmox) GetGroups() ([]Group, error) {
+func (p ProxmoxClient) GetGroups() ([]Group, error) {
 	endpoint_url := "/api2/json/access/groups"
 	body, err := p.GetContent(endpoint_url)
 
@@ -34,7 +34,7 @@ type GroupConfig struct {
 	Members []string
 }
 
-func (p Proxmox) GetGroupConfig(group Group) (GroupConfig, error) {
+func (p ProxmoxClient) GetGroupConfig(group Group) (GroupConfig, error) {
 	endpoint_url := "/api2/json/access/groups/" + group.GroupId
 	body, err := p.GetContent(endpoint_url)
 
@@ -47,7 +47,7 @@ func (p Proxmox) GetGroupConfig(group Group) (GroupConfig, error) {
 	return groupConfig.Data, nil
 }
 
-func (p Proxmox) CreateGroup(group Group) ([]byte, error) {
+func (p ProxmoxClient) CreateGroup(group Group) ([]byte, error) {
 	endpoint_url := "/api2/json/access/groups"
 	payload := url.Values{}
 	payload.Add("groupid", group.GroupId)

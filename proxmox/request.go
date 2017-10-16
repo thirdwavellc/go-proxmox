@@ -1,4 +1,4 @@
-package main
+package proxmox
 
 import (
 	"bytes"
@@ -11,17 +11,17 @@ import (
 	"time"
 )
 
-func (p Proxmox) BuildUrl(endpoint_url string) string {
-	return p.host + endpoint_url
+func (p ProxmoxClient) BuildUrl(endpoint_url string) string {
+	return p.Host + endpoint_url
 }
 
-func (p Proxmox) GetContent(endpoint_url string) ([]byte, error) {
+func (p ProxmoxClient) GetContent(endpoint_url string) ([]byte, error) {
 	req, err := http.NewRequest("GET", p.BuildUrl(endpoint_url), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.Auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
 	req.AddCookie(&cookie)
 
 	// TODO: remove me or refactor to be optional
@@ -50,7 +50,7 @@ func (p Proxmox) GetContent(endpoint_url string) ([]byte, error) {
 	return body, nil
 }
 
-func (p Proxmox) PostContent(endpoint_url string, payload url.Values) ([]byte, error) {
+func (p ProxmoxClient) PostContent(endpoint_url string, payload url.Values) ([]byte, error) {
 	body, err := p.SendContent("POST", endpoint_url, payload)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (p Proxmox) PostContent(endpoint_url string, payload url.Values) ([]byte, e
 	return body, nil
 }
 
-func (p Proxmox) PutContent(endpoint_url string, payload url.Values) ([]byte, error) {
+func (p ProxmoxClient) PutContent(endpoint_url string, payload url.Values) ([]byte, error) {
 	body, err := p.SendContent("PUT", endpoint_url, payload)
 
 	if err != nil {
@@ -70,7 +70,7 @@ func (p Proxmox) PutContent(endpoint_url string, payload url.Values) ([]byte, er
 	return body, nil
 }
 
-func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) ([]byte, error) {
+func (p ProxmoxClient) DeleteContent(endpoint_url string, payload url.Values) ([]byte, error) {
 	body, err := p.SendContent("DELETE", endpoint_url, payload)
 
 	if err != nil {
@@ -80,7 +80,7 @@ func (p Proxmox) DeleteContent(endpoint_url string, payload url.Values) ([]byte,
 	return body, nil
 }
 
-func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Values) ([]byte, error) {
+func (p ProxmoxClient) SendContent(method string, endpoint_url string, payload url.Values) ([]byte, error) {
 	fmt.Println("SendContent Request:")
 	fmt.Printf("Method: %s\n", method)
 	fmt.Printf("URL: %s\n", endpoint_url)
@@ -91,10 +91,10 @@ func (p Proxmox) SendContent(method string, endpoint_url string, payload url.Val
 		return nil, err
 	}
 
-	if p.auth.Ticket != "" {
-		request.Header.Add("CSRFPreventionToken", p.auth.CSRFPreventionToken)
+	if p.Auth.Ticket != "" {
+		request.Header.Add("CSRFPreventionToken", p.Auth.CSRFPreventionToken)
 
-		cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.auth.Ticket,
+		cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.Auth.Ticket,
 			Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
 		request.AddCookie(&cookie)
 	}
