@@ -1,3 +1,5 @@
 go-proxmox*
 
 config/*.json
+
+vendor
