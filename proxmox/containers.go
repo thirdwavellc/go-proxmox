@@ -51,22 +51,15 @@ type ContainerConfigList struct {
 }
 
 type ContainerConfig struct {
-	CPUs           int
-	CPUUnits       int
-	Digest         string
-	Disk           int
-	Hostname       string
-	Net0           string
-	IP_Address     string
-	Memory         int
-	NameServer     string
-	OnBoot         int
-	OSTemplate     string `json:"ostemplate"`
-	QuotaTime      int
-	QuotaUGIDLimit int
-	SearchDomain   string
-	Storage        string
-	Swap           int
+	Arch     string
+	Cores    int
+	Digest   string
+	Hostname string
+	Memory   int
+	Net0     string
+	OsType   string `json:"ostype"`
+	RootFs   string `json:"rootfs"`
+	Swap     int
 }
 
 type NewContainerRequest struct {
