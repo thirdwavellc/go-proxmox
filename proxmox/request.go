@@ -106,6 +106,10 @@ func (p ProxmoxClient) SendContent(method string, endpoint_url string, payload u
 	}
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
+
+	log.Printf("SendContent Response: %+v\n", resp)
+	log.Println("----------------------------------------------------------------------------")
+
 	if err != nil {
 		return nil, err
 	}
@@ -114,9 +118,6 @@ func (p ProxmoxClient) SendContent(method string, endpoint_url string, payload u
 		err := errors.New(resp.Status)
 		return nil, err
 	}
-
-	log.Printf("SendContent Response: %+v\n", resp)
-	log.Println("----------------------------------------------------------------------------")
 
 	defer resp.Body.Close()
 
