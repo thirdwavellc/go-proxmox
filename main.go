@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/thirdwavellc/go-proxmox/proxmox"
 	"log"
 	"os"
@@ -266,9 +265,9 @@ func main() {
 		}
 
 		if task.ExitStatus == "OK" {
-			fmt.Println("Container successfully created!")
+			log.Println("Container successfully created!")
 		} else {
-			fmt.Printf("Exit Status: %s", task.ExitStatus)
+			log.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "updateContainer":
 		req := &proxmox.ExistingContainerRequest{}
@@ -293,12 +292,12 @@ func main() {
 		}
 
 		// TODO: handle response
-		fmt.Printf(resp)
+		log.Printf(resp)
 	case "deleteContainer":
 		request := &proxmox.ExistingContainerRequest{}
 		request.Node = options.node
 		request.VMID = options.vmid
-		fmt.Printf("Deleting container")
+		log.Printf("Deleting container")
 		upid, err := client.DeleteContainer(request)
 
 		if err != nil {
@@ -315,9 +314,9 @@ func main() {
 		}
 
 		if task.ExitStatus == "OK" {
-			fmt.Println("Container successfully deleted!")
+			log.Println("Container successfully deleted!")
 		} else {
-			fmt.Printf("Exit Status: %s", task.ExitStatus)
+			log.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "startContainer":
 		request := &proxmox.ExistingContainerRequest{}
@@ -340,9 +339,9 @@ func main() {
 		}
 
 		if task.ExitStatus == "OK" {
-			fmt.Println("Container successfully started!")
+			log.Println("Container successfully started!")
 		} else {
-			fmt.Printf("Exit Status: %s", task.ExitStatus)
+			log.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "shutdownContainer":
 		request := &proxmox.ExistingContainerRequest{}
@@ -365,9 +364,9 @@ func main() {
 		}
 
 		if task.ExitStatus == "OK" {
-			fmt.Println("Container successfully shutdown!")
+			log.Println("Container successfully shutdown!")
 		} else {
-			fmt.Printf("Exit Status: %s", task.ExitStatus)
+			log.Printf("Exit Status: %s", task.ExitStatus)
 		}
 	case "getNodeDatastores":
 		datastores, err := client.GetNodeDatastores(options.node)
@@ -386,7 +385,7 @@ func main() {
 
 		proxmox.PrintDataSlice(content)
 	default:
-		fmt.Printf("Unsupported action: %s", options.action)
+		log.Printf("Unsupported action: %s", options.action)
 		os.Exit(1)
 	}
 }
