@@ -2,7 +2,7 @@ package proxmox
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -81,10 +81,10 @@ func (p ProxmoxClient) CheckNodeTaskStatus(req NodeTaskStatusRequest) (NodeTaskS
 		}
 
 		if task.Status == "stopped" {
-			fmt.Printf("done.\n")
+			log.Printf("done.\n")
 			return task, nil
 		} else {
-			fmt.Printf(".")
+			log.Printf(".")
 			time.Sleep(time.Second)
 		}
 	}
