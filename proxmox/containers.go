@@ -154,3 +154,31 @@ func (p ProxmoxClient) DeleteContainer(req *ExistingContainerRequest) (string, e
 	json.Unmarshal(body, &response)
 	return response.Data, nil
 }
+
+func (p ProxmoxClient) StartContainer(req *ExistingContainerRequest) (string, error) {
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/status/start"
+	payload := url.Values{}
+	body, err := p.PostContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	var response ContainerResponse
+	json.Unmarshal(body, &response)
+	return response.Data, nil
+}
+
+func (p ProxmoxClient) ShutdownContainer(req *ExistingContainerRequest) (string, error) {
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/status/shutdown"
+	payload := url.Values{}
+	body, err := p.PostContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	var response ContainerResponse
+	json.Unmarshal(body, &response)
+	return response.Data, nil
+}

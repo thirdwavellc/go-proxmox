@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/thirdwavellc/go-proxmox/proxmox"
+	"log"
 	"os"
 )
 
@@ -315,6 +316,56 @@ func main() {
 
 		if task.ExitStatus == "OK" {
 			fmt.Println("Container successfully deleted!")
+		} else {
+			fmt.Printf("Exit Status: %s", task.ExitStatus)
+		}
+	case "startContainer":
+		request := &proxmox.ExistingContainerRequest{}
+		request.Node = options.node
+		request.VMID = options.vmid
+		log.Printf("Starting container")
+		upid, err := client.StartContainer(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest.Node = options.node
+		statusRequest.UPID = upid
+		task, err := client.CheckNodeTaskStatus(statusRequest)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		if task.ExitStatus == "OK" {
+			fmt.Println("Container successfully started!")
+		} else {
+			fmt.Printf("Exit Status: %s", task.ExitStatus)
+		}
+	case "shutdownContainer":
+		request := &proxmox.ExistingContainerRequest{}
+		request.Node = options.node
+		request.VMID = options.vmid
+		log.Printf("Shutting down container")
+		upid, err := client.ShutdownContainer(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest.Node = options.node
+		statusRequest.UPID = upid
+		task, err := client.CheckNodeTaskStatus(statusRequest)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		if task.ExitStatus == "OK" {
+			fmt.Println("Container successfully shutdown!")
 		} else {
 			fmt.Printf("Exit Status: %s", task.ExitStatus)
 		}
