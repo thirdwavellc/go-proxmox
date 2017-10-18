@@ -243,6 +243,18 @@ func main() {
 		}
 
 		proxmox.PrintDataStruct(containerConfig)
+	case "getContainerStatus":
+		request := &proxmox.ContainerStatusRequest{
+			Node: options.node,
+			VMID: options.vmid,
+		}
+		containerStatus, err := client.GetContainerStatus(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		proxmox.PrintDataStruct(containerStatus)
 	case "createContainer":
 		req := &proxmox.NewContainerRequest{}
 		req.Node = options.node

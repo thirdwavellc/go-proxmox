@@ -119,6 +119,52 @@ func (p ProxmoxClient) GetContainerConfig(req *ContainerConfigRequest) (Containe
 	return containerConfig.Data, nil
 }
 
+type ContainerStatusRequest struct {
+	Node string `url:"node"`
+	VMID string `url:"vmid"`
+}
+
+type ContainerStatusWrapper struct {
+	Data ContainerStatus `json:"data"`
+}
+
+type ContainerStatus struct {
+	CPU       int    `json:"cpu"`
+	CPUs      int    `json:"cpus"`
+	Disk      int    `json:"disk"`
+	DiskRead  string `json:"diskread"`
+	DiskWrite string `json:"diskwrite"`
+	// HA
+	Lock     string `json:"lock"`
+	MaxDisk  int    `json:"maxdisk"`
+	MaxMem   int    `json:"maxmem"`
+	MaxSwap  int    `json:"maxswap"`
+	Mem      int    `json:"mem"`
+	Name     string `json:"name"`
+	NetIn    int    `json:"netin"`
+	NetOut   int    `json:"netout"`
+	PID      string `json:"pid"`
+	Status   string `json:"status"`
+	Swap     int    `json:"swap"`
+	Template string `json:"template"`
+	Type     string `json:"type"`
+	Uptime   int    `json:"uptime"`
+}
+
+func (p ProxmoxClient) GetContainerStatus(req *ContainerStatusRequest) (ContainerStatus, error) {
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/status/current"
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
+
+	if err != nil {
+		return ContainerStatus{}, err
+	}
+
+	var containerStatus ContainerStatusWrapper
+	json.Unmarshal(body, &containerStatus)
+	return containerStatus.Data, nil
+}
+
 type ContainerResponse struct {
 	Data string
 }
