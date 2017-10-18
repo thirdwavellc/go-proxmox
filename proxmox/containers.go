@@ -11,26 +11,25 @@ type ContainerList struct {
 }
 
 type Container struct {
-	MaxSwap   int
-	Disk      int
-	IP        string
-	Status    string
-	Netout    int
-	MaxDisk   int
-	MaxMem    int
-	Uptime    int
-	Swap      int
-	VMID      string
-	NProc     string
-	DiskRead  int
-	CPU       float64
-	NetIn     int
-	Name      string
-	FailCnt   int
-	DiskWrite int
-	Mem       int
-	Type      string
-	CPUs      int
+	CPU       float64 `json:"cpu"`
+	CPUs      int     `json:"cpus"`
+	Disk      int     `json:"disk"`
+	DiskRead  int     `json:"diskread"`
+	DiskWrite int     `json:"diskwrite"`
+	Lock      string  `json:"lock"`
+	MaxDisk   int     `json:"maxdisk"`
+	MaxMem    int     `json:"maxmem"`
+	MaxSwap   int     `json:"maxswap"`
+	Mem       int     `json:"mem"`
+	Name      string  `json:"name"`
+	NetIn     int     `json:"netin"`
+	NetOut    int     `json:"netout"`
+	Status    string  `json:"status"`
+	Swap      int     `json:"swap"`
+	Template  string  `json:"template"`
+	Type      string  `json:"type"`
+	Uptime    int     `json:"uptime"`
+	VMID      string  `json:"vmid"`
 }
 
 func (p ProxmoxClient) GetContainers() ([]Container, error) {
