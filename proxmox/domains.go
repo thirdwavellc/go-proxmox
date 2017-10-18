@@ -2,6 +2,7 @@ package proxmox
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
 type DomainList struct {
@@ -9,14 +10,15 @@ type DomainList struct {
 }
 
 type Domain struct {
-	Comment string
-	Realm   string
-	Type    string
+	Comment string `json:"comment"`
+	Realm   string `json:"realm"`
+	Type    string `json:"type"`
 }
 
 func (p ProxmoxClient) GetDomains() ([]Domain, error) {
 	endpoint_url := "/api2/json/access/domains"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -32,15 +34,20 @@ type RealmConfigList struct {
 }
 
 type RealmConfig struct {
-	Comment string
-	Digest  string
-	Plugin  string
-	Type    string
+	Comment string `json:"comment"`
+	Digest  string `json:"digest"`
+	Plugin  string `json:"plugin"`
+	Type    string `json:"type"`
 }
 
-func (p ProxmoxClient) GetRealmConfig(domain Domain) (RealmConfig, error) {
-	endpoint_url := "/api2/json/access/domains/" + domain.Realm
-	body, err := p.GetContent(endpoint_url)
+type RealmConfigRequest struct {
+	Realm string `json:"realm"`
+}
+
+func (p ProxmoxClient) GetRealmConfig(req *RealmConfigRequest) (RealmConfig, error) {
+	endpoint_url := "/api2/json/access/domains/" + req.Realm
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return RealmConfig{}, err
