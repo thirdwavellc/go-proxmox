@@ -9,9 +9,9 @@ type DomainList struct {
 }
 
 type Domain struct {
-	Comment string
-	Realm   string
-	Type    string
+	Comment string `json:"comment"`
+	Realm   string `json:"realm"`
+	Type    string `json:"type"`
 }
 
 func (p ProxmoxClient) GetDomains() ([]Domain, error) {
@@ -32,10 +32,10 @@ type RealmConfigList struct {
 }
 
 type RealmConfig struct {
-	Comment string
-	Digest  string
-	Plugin  string
-	Type    string
+	Comment string `json:"comment"`
+	Digest  string `json:"digest"`
+	Plugin  string `json:"plugin"`
+	Type    string `json:"type"`
 }
 
 func (p ProxmoxClient) GetRealmConfig(domain Domain) (RealmConfig, error) {
