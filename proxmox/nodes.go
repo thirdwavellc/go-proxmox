@@ -11,17 +11,17 @@ type NodeList struct {
 }
 
 type Node struct {
-	Disk    int
-	CPU     float64
-	MaxDisk int
-	MaxMem  int
-	Node    string
-	MaxCPU  int
-	Level   string
-	Uptime  int
-	Id      string
-	Type    string
-	Mem     int
+	CPU     float64 `json:"cpu"`
+	Disk    int     `json:"disk"`
+	Id      string  `json:"id"`
+	Level   string  `json:"level"`
+	MaxCPU  int     `json:"maxcpu"`
+	MaxDisk int     `json:"maxdisk"`
+	MaxMem  int     `json:"maxmem"`
+	Mem     int     `json:"mem"`
+	Node    string  `json:"node"`
+	Type    string  `json:"type"`
+	Uptime  int     `json:"uptime"`
 }
 
 func (p ProxmoxClient) GetNodes() ([]Node, error) {
