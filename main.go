@@ -99,7 +99,11 @@ func main() {
 	client.Host = options.host
 	client.User = options.user
 	client.Password = options.password
-	client.Auth, err = client.GetAuth()
+	ticketReq := &proxmox.TicketRequest{
+		Username: options.user,
+		Password: options.password,
+	}
+	client.Auth, err = client.GetAuth(ticketReq)
 
 	if err != nil {
 		proxmox.PrintError(err)
