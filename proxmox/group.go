@@ -2,7 +2,7 @@ package proxmox
 
 import (
 	"encoding/json"
-	"net/url"
+	"github.com/google/go-querystring/query"
 )
 
 type GroupList struct {
@@ -10,7 +10,8 @@ type GroupList struct {
 }
 
 type Group struct {
-	GroupId string `json:"groupid"`
+	GroupId string `json:"groupid" url:"groupid"`
+	Comment string `json:"comment" url:"comment,omitempty"`
 }
 
 func (p ProxmoxClient) GetGroups() ([]Group, error) {
@@ -26,12 +27,9 @@ func (p ProxmoxClient) GetGroups() ([]Group, error) {
 	return groups.Data, nil
 }
 
-type GroupConfigList struct {
-	Data GroupConfig
-}
-
 type GroupConfig struct {
-	Members []string
+	Comment string   `json:"comment"`
+	Members []string `json:"members"`
 }
 
 func (p ProxmoxClient) GetGroupConfig(group Group) (GroupConfig, error) {
@@ -42,15 +40,14 @@ func (p ProxmoxClient) GetGroupConfig(group Group) (GroupConfig, error) {
 		return GroupConfig{}, err
 	}
 
-	var groupConfig GroupConfigList
+	var groupConfig GroupConfig
 	json.Unmarshal(body, &groupConfig)
-	return groupConfig.Data, nil
+	return groupConfig, nil
 }
 
 func (p ProxmoxClient) CreateGroup(group Group) ([]byte, error) {
 	endpoint_url := "/api2/json/access/groups"
-	payload := url.Values{}
-	payload.Add("groupid", group.GroupId)
+	payload, _ := query.Values(group)
 	body, err := p.PostContent(endpoint_url, payload)
 
 	if err != nil {

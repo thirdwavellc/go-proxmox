@@ -15,6 +15,7 @@ type Options struct {
 	action          string
 	realm           string
 	group_id        string
+	comment         string
 	role_id         string
 	node            string
 	upid            string
@@ -47,6 +48,7 @@ func getOpts() Options {
 	flag.StringVar(&options.action, "action", "", "Proxmox api action")
 	flag.StringVar(&options.realm, "realm", "pve", "Proxmox realm")
 	flag.StringVar(&options.group_id, "group-id", "", "Proxmox group")
+	flag.StringVar(&options.comment, "comment", "", "Comment")
 	flag.StringVar(&options.role_id, "role-id", "", "Proxmox role")
 	flag.StringVar(&options.node, "node", "", "Proxmox node")
 	flag.StringVar(&options.upid, "upid", "", "Proxmox task UPID")
@@ -149,13 +151,12 @@ func main() {
 	case "createGroup":
 		var group proxmox.Group
 		group.GroupId = options.group_id
-		resp, err := client.CreateGroup(group)
+		group.Comment = options.comment
+		_, err := client.CreateGroup(group)
 
 		if err != nil {
 			proxmox.PrintError(err)
 		}
-
-		proxmox.PrintDataSlice(resp)
 	case "getRoles":
 		roles, err := client.GetRoles()
 
