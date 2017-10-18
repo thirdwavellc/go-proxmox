@@ -102,5 +102,9 @@ func (p ProxmoxClient) apiRequest(method string, endpoint_url string, payload ur
 		return body, err
 	}
 
+	log.Println("Body:")
+	log.Printf("%s", body)
+	log.Println("----------------------------------------------------------------------------")
+
 	return body, nil
 }
