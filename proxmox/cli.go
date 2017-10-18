@@ -1,7 +1,7 @@
 package proxmox
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"reflect"
 )
@@ -9,8 +9,8 @@ import (
 // PrintError prints the error in a standardized format, and exits with
 // return status 1.
 func PrintError(err error) {
-	log.Println("There was an error...")
-	log.Printf("Error: %v", err)
+	fmt.Println("There was an error...")
+	fmt.Printf("Error: %v", err)
 	os.Exit(1)
 }
 
@@ -26,9 +26,9 @@ func PrintDataSlice(data interface{}) {
 
 		for j := 0; j < dataItem.NumField(); j++ {
 			f := dataItem.Field(j)
-			log.Printf("%s: %v\n", typeOfT.Field(j).Name, f.Interface())
+			fmt.Printf("%s: %v\n", typeOfT.Field(j).Name, f.Interface())
 		}
-		log.Printf("\n")
+		fmt.Printf("\n")
 	}
 }
 
@@ -40,7 +40,7 @@ func PrintDataStruct(data interface{}) {
 
 	for j := 0; j < d.NumField(); j++ {
 		f := d.Field(j)
-		log.Printf("%s: %v\n", typeOfT.Field(j).Name, f.Interface())
+		fmt.Printf("%s: %v\n", typeOfT.Field(j).Name, f.Interface())
 	}
-	log.Printf("\n")
+	fmt.Printf("\n")
 }
