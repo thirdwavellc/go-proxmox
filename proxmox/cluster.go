@@ -9,14 +9,14 @@ type Cluster struct {
 }
 
 type ClusterNode struct {
-	Id     string
-	Level  string
-	Local  int
-	Name   string
-	NodeId int
-	Pmxcfs int
-	State  int
-	Type   string
+	Id     string `json:"id"`
+	Ip     string `json:"ip"`
+	Level  string `json:"level"`
+	Local  int    `json:"local"`
+	Name   string `json:"name"`
+	NodeId int    `json:"nodeid"`
+	Online int    `json:"online"`
+	Type   string `json:"type"`
 }
 
 func (p ProxmoxClient) GetClusterStatus() ([]ClusterNode, error) {
@@ -37,15 +37,15 @@ type ClusterTaskList struct {
 }
 
 type ClusterTask struct {
-	EndTime   int
-	Id        string
-	Node      string
-	Saved     string
-	StartTime string
-	Status    string
-	Type      string
-	UPId      string
-	User      string
+	EndTime   int    `json:"endtime"`
+	Id        string `json:"id"`
+	Node      string `json:"node"`
+	Saved     string `json:"saved"`
+	StartTime string `json:"starttime"`
+	Status    string `json:"status"`
+	Type      string `json:"type"`
+	UPId      string `json:"upid"`
+	User      string `json:"user"`
 }
 
 func (p ProxmoxClient) GetClusterTasks() ([]ClusterTask, error) {
@@ -66,16 +66,18 @@ type ClusterBackupSchedule struct {
 }
 
 type ClusterBackupScheduleItem struct {
-	All       int
-	Compress  string
-	DOW       string
-	Exclude   string
-	Id        string
-	MailTo    string
-	Mode      string
-	Quiet     int
-	StartTime string
-	Storage   string
+	Compress         string `json:"compress"`
+	DOW              string `json:"dow"`
+	Enabled          string `json:"enabled"`
+	Id               string `json:"id"`
+	MailNotification string `json:"mailnotification"`
+	MailTo           string `json:"mailto"`
+	Mode             string `json:"mode"`
+	Node             string `json:"node"`
+	Quiet            int    `json:"quiet"`
+	StartTime        string `json:"starttime"`
+	Storage          string `json:"storage"`
+	VMID             string `json:"vmid"`
 }
 
 func (p ProxmoxClient) GetClusterBackupSchedule() ([]ClusterBackupScheduleItem, error) {
