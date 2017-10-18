@@ -15,34 +15,9 @@ func (p ProxmoxClient) BuildUrl(endpoint_url string) string {
 	return p.Host + endpoint_url
 }
 
-func (p ProxmoxClient) GetContent(endpoint_url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", p.BuildUrl(endpoint_url), nil)
-	if err != nil {
-		return nil, err
-	}
+func (p ProxmoxClient) GetContent(endpoint_url string, payload url.Values) ([]byte, error) {
+	body, err := p.apiRequest("GET", endpoint_url, payload)
 
-	cookie := http.Cookie{Name: "PVEAuthCookie", Value: p.Auth.Ticket, Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
-	req.AddCookie(&cookie)
-
-	// TODO: remove me or refactor to be optional
-	// This is only needed for testing local instance with self-signed cert
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err := errors.New(resp.Status)
-		return nil, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +26,7 @@ func (p ProxmoxClient) GetContent(endpoint_url string) ([]byte, error) {
 }
 
 func (p ProxmoxClient) PostContent(endpoint_url string, payload url.Values) ([]byte, error) {
-	body, err := p.SendContent("POST", endpoint_url, payload)
+	body, err := p.apiRequest("POST", endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +36,7 @@ func (p ProxmoxClient) PostContent(endpoint_url string, payload url.Values) ([]b
 }
 
 func (p ProxmoxClient) PutContent(endpoint_url string, payload url.Values) ([]byte, error) {
-	body, err := p.SendContent("PUT", endpoint_url, payload)
+	body, err := p.apiRequest("PUT", endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -71,7 +46,7 @@ func (p ProxmoxClient) PutContent(endpoint_url string, payload url.Values) ([]by
 }
 
 func (p ProxmoxClient) DeleteContent(endpoint_url string, payload url.Values) ([]byte, error) {
-	body, err := p.SendContent("DELETE", endpoint_url, payload)
+	body, err := p.apiRequest("DELETE", endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -80,8 +55,8 @@ func (p ProxmoxClient) DeleteContent(endpoint_url string, payload url.Values) ([
 	return body, nil
 }
 
-func (p ProxmoxClient) SendContent(method string, endpoint_url string, payload url.Values) ([]byte, error) {
-	log.Println("SendContent Request:")
+func (p ProxmoxClient) apiRequest(method string, endpoint_url string, payload url.Values) ([]byte, error) {
+	log.Println("API Request:")
 	log.Printf("Method: %s\n", method)
 	log.Printf("URL: %s\n", endpoint_url)
 	log.Printf("Payload: %+v\n\n", payload)
@@ -107,7 +82,7 @@ func (p ProxmoxClient) SendContent(method string, endpoint_url string, payload u
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 
-	log.Printf("SendContent Response: %+v\n", resp)
+	log.Printf("API Response: %+v\n", resp)
 	log.Println("----------------------------------------------------------------------------")
 
 	if err != nil {

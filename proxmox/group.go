@@ -3,6 +3,7 @@ package proxmox
 import (
 	"encoding/json"
 	"github.com/google/go-querystring/query"
+	"net/url"
 )
 
 type GroupList struct {
@@ -16,7 +17,8 @@ type Group struct {
 
 func (p ProxmoxClient) GetGroups() ([]Group, error) {
 	endpoint_url := "/api2/json/access/groups"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -32,9 +34,14 @@ type GroupConfig struct {
 	Members []string `json:"members"`
 }
 
-func (p ProxmoxClient) GetGroupConfig(group Group) (GroupConfig, error) {
-	endpoint_url := "/api2/json/access/groups/" + group.GroupId
-	body, err := p.GetContent(endpoint_url)
+type GroupConfigRequest struct {
+	GroupId string `url:"groupid"`
+}
+
+func (p ProxmoxClient) GetGroupConfig(req *GroupConfigRequest) (GroupConfig, error) {
+	endpoint_url := "/api2/json/access/groups/" + req.GroupId
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return GroupConfig{}, err
@@ -45,9 +52,14 @@ func (p ProxmoxClient) GetGroupConfig(group Group) (GroupConfig, error) {
 	return groupConfig, nil
 }
 
-func (p ProxmoxClient) CreateGroup(group Group) ([]byte, error) {
+type NewGroupRequest struct {
+	GroupId string `url:"groupid"`
+	Comment string `url:"comment,omitempty"`
+}
+
+func (p ProxmoxClient) CreateGroup(req *NewGroupRequest) ([]byte, error) {
 	endpoint_url := "/api2/json/access/groups"
-	payload, _ := query.Values(group)
+	payload, _ := query.Values(req)
 	body, err := p.PostContent(endpoint_url, payload)
 
 	if err != nil {

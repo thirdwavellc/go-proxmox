@@ -2,6 +2,7 @@ package proxmox
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
 type Cluster struct {
@@ -21,7 +22,8 @@ type ClusterNode struct {
 
 func (p ProxmoxClient) GetClusterStatus() ([]ClusterNode, error) {
 	endpoint_url := "/api2/json/cluster/status"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +52,8 @@ type ClusterTask struct {
 
 func (p ProxmoxClient) GetClusterTasks() ([]ClusterTask, error) {
 	endpoint_url := "/api2/json/cluster/tasks"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -82,7 +85,8 @@ type ClusterBackupScheduleItem struct {
 
 func (p ProxmoxClient) GetClusterBackupSchedule() ([]ClusterBackupScheduleItem, error) {
 	endpoint_url := "/api2/json/cluster/backup"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err

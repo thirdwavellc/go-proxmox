@@ -32,9 +32,14 @@ type Container struct {
 	VMID      string  `json:"vmid"`
 }
 
-func (p ProxmoxClient) GetContainers() ([]Container, error) {
-	endpoint_url := "/api2/json/nodes/" + p.Node + "/lxc"
-	body, err := p.GetContent(endpoint_url)
+type ContainerRequest struct {
+	Node string `url:"node"`
+}
+
+func (p ProxmoxClient) GetContainers(req *ContainerRequest) ([]Container, error) {
+	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc"
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -95,9 +100,15 @@ type ExistingContainerRequest struct {
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 }
 
-func (p ProxmoxClient) GetContainerConfig(req *ExistingContainerRequest) (ContainerConfig, error) {
+type ContainerConfigRequest struct {
+	Node string `url:"node"`
+	VMID string `url:"vmid"`
+}
+
+func (p ProxmoxClient) GetContainerConfig(req *ContainerConfigRequest) (ContainerConfig, error) {
 	endpoint_url := "/api2/json/nodes/" + req.Node + "/lxc/" + req.VMID + "/config"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return ContainerConfig{}, err

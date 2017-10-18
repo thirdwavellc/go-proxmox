@@ -27,7 +27,6 @@ type Options struct {
 	ip_address      string
 	memory          int
 	swap            int
-	datastore       string
 	net0            string
 	storage         string
 	root_fs         string
@@ -60,7 +59,6 @@ func getOpts() Options {
 	flag.StringVar(&options.ip_address, "ip-address", "", "IP Address")
 	flag.IntVar(&options.memory, "memory", 512, "Memory")
 	flag.IntVar(&options.swap, "swap", 512, "Swap")
-	flag.StringVar(&options.datastore, "datastore", "", "Datastore identifier")
 	flag.StringVar(&options.net0, "net0", "", "Network interface 0 config")
 	flag.StringVar(&options.storage, "storage", "", "Storage identifier")
 	flag.StringVar(&options.root_fs, "root-fs", "", "Root Filesystem")
@@ -121,9 +119,10 @@ func main() {
 
 		proxmox.PrintDataSlice(domains)
 	case "getRealmConfig":
-		domain := proxmox.Domain{}
-		domain.Realm = options.realm
-		config, err := client.GetRealmConfig(domain)
+		request := &proxmox.RealmConfigRequest{
+			Realm: options.realm,
+		}
+		config, err := client.GetRealmConfig(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -139,9 +138,10 @@ func main() {
 
 		proxmox.PrintDataSlice(groups)
 	case "getGroupConfig":
-		var group proxmox.Group
-		group.GroupId = options.group_id
-		config, err := client.GetGroupConfig(group)
+		request := &proxmox.GroupConfigRequest{
+			GroupId: options.group_id,
+		}
+		config, err := client.GetGroupConfig(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -149,10 +149,11 @@ func main() {
 
 		proxmox.PrintDataStruct(config)
 	case "createGroup":
-		var group proxmox.Group
-		group.GroupId = options.group_id
-		group.Comment = options.comment
-		_, err := client.CreateGroup(group)
+		request := &proxmox.NewGroupRequest{
+			GroupId: options.group_id,
+			Comment: options.comment,
+		}
+		_, err := client.CreateGroup(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -166,9 +167,10 @@ func main() {
 
 		proxmox.PrintDataSlice(roles)
 	case "getRoleConfig":
-		var role proxmox.Role
-		role.RoleId = options.role_id
-		config, err := client.GetRoleConfig(role)
+		request := &proxmox.RoleConfigRequest{
+			RoleId: options.role_id,
+		}
+		config, err := client.GetRoleConfig(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -208,7 +210,7 @@ func main() {
 
 		proxmox.PrintDataSlice(nodes)
 	case "getNodeTaskStatus":
-		request := proxmox.NodeTaskStatusRequest{}
+		request := &proxmox.NodeTaskStatusRequest{}
 		request.Node = options.node
 		request.UPID = options.upid
 		status, err := client.GetNodeTaskStatus(request)
@@ -219,8 +221,10 @@ func main() {
 
 		proxmox.PrintDataStruct(status)
 	case "getContainers":
-		client.Node = options.node
-		containers, err := client.GetContainers()
+		request := &proxmox.ContainerRequest{
+			Node: options.node,
+		}
+		containers, err := client.GetContainers(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -228,10 +232,11 @@ func main() {
 
 		proxmox.PrintDataSlice(containers)
 	case "getContainerConfig":
-		req := &proxmox.ExistingContainerRequest{}
-		req.Node = options.node
-		req.VMID = options.vmid
-		containerConfig, err := client.GetContainerConfig(req)
+		request := &proxmox.ContainerConfigRequest{
+			Node: options.node,
+			VMID: options.vmid,
+		}
+		containerConfig, err := client.GetContainerConfig(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
@@ -260,7 +265,7 @@ func main() {
 			proxmox.PrintError(err)
 		}
 
-		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest := &proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
 		task, err := client.CheckNodeTaskStatus(statusRequest)
@@ -309,7 +314,7 @@ func main() {
 			proxmox.PrintError(err)
 		}
 
-		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest := &proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
 		task, err := client.CheckNodeTaskStatus(statusRequest)
@@ -334,7 +339,7 @@ func main() {
 			proxmox.PrintError(err)
 		}
 
-		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest := &proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
 		task, err := client.CheckNodeTaskStatus(statusRequest)
@@ -359,7 +364,7 @@ func main() {
 			proxmox.PrintError(err)
 		}
 
-		statusRequest := proxmox.NodeTaskStatusRequest{}
+		statusRequest := &proxmox.NodeTaskStatusRequest{}
 		statusRequest.Node = options.node
 		statusRequest.UPID = upid
 		task, err := client.CheckNodeTaskStatus(statusRequest)
@@ -373,16 +378,23 @@ func main() {
 		} else {
 			log.Printf("Exit Status: %s", task.ExitStatus)
 		}
-	case "getNodeDatastores":
-		datastores, err := client.GetNodeDatastores(options.node)
+	case "getNodeStorage":
+		request := &proxmox.NodeStorageRequest{
+			Node: options.node,
+		}
+		storage, err := client.GetNodeStorage(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
 		}
 
-		proxmox.PrintDataSlice(datastores)
-	case "getNodeDatastoreContent":
-		content, err := client.GetNodeDatastoreContent(options.node, options.datastore)
+		proxmox.PrintDataSlice(storage)
+	case "getNodeStorageContent":
+		request := &proxmox.NodeStorageContentRequest{
+			Node:    options.node,
+			Storage: options.storage,
+		}
+		content, err := client.GetNodeStorageContent(request)
 
 		if err != nil {
 			proxmox.PrintError(err)

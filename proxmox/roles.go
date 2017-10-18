@@ -2,6 +2,7 @@ package proxmox
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
 type RoleList struct {
@@ -15,7 +16,8 @@ type Role struct {
 
 func (p ProxmoxClient) GetRoles() ([]Role, error) {
 	endpoint_url := "/api2/json/access/roles"
-	body, err := p.GetContent(endpoint_url)
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return nil, err
@@ -64,9 +66,14 @@ type RoleConfig struct {
 	VMSnapshot                int `json:"VM.Snapshot"`
 }
 
-func (p ProxmoxClient) GetRoleConfig(role Role) (RoleConfig, error) {
-	endpoint_url := "/api2/json/access/roles/" + role.RoleId
-	body, err := p.GetContent(endpoint_url)
+type RoleConfigRequest struct {
+	RoleId string `url:"roleid"`
+}
+
+func (p ProxmoxClient) GetRoleConfig(req *RoleConfigRequest) (RoleConfig, error) {
+	endpoint_url := "/api2/json/access/roles/" + req.RoleId
+	payload := url.Values{}
+	body, err := p.GetContent(endpoint_url, payload)
 
 	if err != nil {
 		return RoleConfig{}, err
