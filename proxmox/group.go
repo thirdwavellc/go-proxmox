@@ -72,3 +72,40 @@ func (p ProxmoxClient) CreateGroup(req *NewGroupRequest) ([]byte, error) {
 
 	return body, nil
 }
+
+type GroupResponse struct {
+	Data string
+}
+
+type ExistingGroupRequest struct {
+	GroupId string `url:"-"`
+	Comment string `url:"comment,omitempty"`
+}
+
+func (p ProxmoxClient) UpdateGroup(req *ExistingGroupRequest) (string, error) {
+	endpoint_url := "/api2/json/access/groups/" + req.GroupId
+	payload, _ := query.Values(req)
+	body, err := p.PutContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	var response GroupResponse
+	json.Unmarshal(body, &response)
+	return response.Data, nil
+}
+
+func (p ProxmoxClient) DeleteGroup(req *ExistingGroupRequest) (string, error) {
+	endpoint_url := "/api2/json/access/groups/" + req.GroupId
+	payload, _ := query.Values(req)
+	body, err := p.DeleteContent(endpoint_url, payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	var response GroupResponse
+	json.Unmarshal(body, &response)
+	return response.Data, nil
+}
