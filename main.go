@@ -38,6 +38,7 @@ type Options struct {
 	backup_id       string
 	start_time      string
 	all             int
+	user_id         string
 }
 
 func getOpts() Options {
@@ -73,6 +74,7 @@ func getOpts() Options {
 	flag.StringVar(&options.backup_id, "backup-id", "", "Backup Id")
 	flag.StringVar(&options.start_time, "start-time", "", "Backup start time")
 	flag.IntVar(&options.all, "all", 0, "Backup all")
+	flag.StringVar(&options.user_id, "user-id", "", "User Id")
 
 	flag.Parse()
 
@@ -484,6 +486,52 @@ func main() {
 			Id: options.backup_id,
 		}
 		_, err := client.DeleteBackup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "getUsers":
+		users, err := client.GetUsers()
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		proxmox.PrintDataSlice(users)
+	case "getUserConfig":
+		request := &proxmox.UserConfigRequest{
+			UserId: options.user_id,
+		}
+		config, err := client.GetUserConfig(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		proxmox.PrintDataStruct(config)
+	case "createUser":
+		request := &proxmox.NewUserRequest{
+			UserId: options.user_id,
+		}
+		_, err := client.CreateUser(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "updateUser":
+		request := &proxmox.ExistingUserRequest{
+			UserId: options.user_id,
+		}
+		_, err := client.UpdateUser(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "deleteUser":
+		request := &proxmox.ExistingUserRequest{
+			UserId: options.user_id,
+		}
+		_, err := client.DeleteUser(request)
 
 		if err != nil {
 			proxmox.PrintError(err)
