@@ -158,6 +158,26 @@ func main() {
 		if err != nil {
 			proxmox.PrintError(err)
 		}
+	case "updateGroup":
+		request := &proxmox.ExistingGroupRequest{
+			GroupId: options.group_id,
+			Comment: options.comment,
+		}
+		_, err := client.UpdateGroup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "deleteGroup":
+		request := &proxmox.ExistingGroupRequest{
+			GroupId: options.group_id,
+			Comment: options.comment,
+		}
+		_, err := client.DeleteGroup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
 	case "getRoles":
 		roles, err := client.GetRoles()
 
