@@ -35,6 +35,9 @@ type Options struct {
 	root_password   string
 	ssh_public_keys string
 	unprivileged    int
+	backup_id       string
+	start_time      string
+	all             int
 }
 
 func getOpts() Options {
@@ -67,6 +70,9 @@ func getOpts() Options {
 	flag.StringVar(&options.root_password, "root-password", "", "Root password")
 	flag.StringVar(&options.ssh_public_keys, "ssh-public-keys", "", "SSH Public Keys")
 	flag.IntVar(&options.unprivileged, "unprivileged", 0, "Unprivileged user")
+	flag.StringVar(&options.backup_id, "backup-id", "", "Backup Id")
+	flag.StringVar(&options.start_time, "start-time", "", "Backup start time")
+	flag.IntVar(&options.all, "all", 0, "Backup all")
 
 	flag.Parse()
 
@@ -433,6 +439,55 @@ func main() {
 		}
 
 		proxmox.PrintDataSlice(content)
+	case "getBackups":
+		backups, err := client.GetBackups()
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		proxmox.PrintDataSlice(backups)
+	case "getBackupConfig":
+		request := &proxmox.ExistingBackupRequest{
+			Id: options.backup_id,
+		}
+		backup, err := client.GetBackupConfig(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+
+		proxmox.PrintDataStruct(backup)
+	case "createBackup":
+		request := &proxmox.NewBackupRequest{
+			StartTime: options.start_time,
+			All:       options.all,
+		}
+		_, err := client.CreateBackup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "updateBackup":
+		request := &proxmox.ExistingBackupRequest{
+			Id:        options.backup_id,
+			StartTime: options.start_time,
+			All:       options.all,
+		}
+		_, err := client.UpdateBackup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
+	case "deleteBackup":
+		request := &proxmox.ExistingBackupRequest{
+			Id: options.backup_id,
+		}
+		_, err := client.DeleteBackup(request)
+
+		if err != nil {
+			proxmox.PrintError(err)
+		}
 	default:
 		log.Printf("Unsupported action: %s", options.action)
 		os.Exit(1)
