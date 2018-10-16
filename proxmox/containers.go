@@ -55,15 +55,17 @@ type ContainerConfigList struct {
 }
 
 type ContainerConfig struct {
-	Arch     string
-	Cores    int
-	Digest   string
-	Hostname string
-	Memory   int
-	Net0     string
-	OsType   string `json:"ostype"`
-	RootFs   string `json:"rootfs"`
-	Swap     int
+	Arch         string
+	Cores        int
+	Digest       string
+	Hostname     string
+	Memory       int
+	Net0         string
+	OsType       string `json:"ostype"`
+	RootFs       string `json:"rootfs"`
+	Swap         int
+	SearchDomain string `json:"searchdomain"`
+	Nameserver   string `json:"nameserver"`
 }
 
 type NewContainerRequest struct {
@@ -81,6 +83,8 @@ type NewContainerRequest struct {
 	Password      string `json:"password" url:"password,omitempty"`
 	SshPublicKeys string `json:"ssh-public-keys" url:"ssh-public-keys,omitempty"`
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
+	SearchDomain  string `json:"searchdomain" url:"searchdomain,omitempty"`
+	Nameserver    string `json: "nameserver" url:"nameserver,omitempty"`
 }
 
 type ExistingContainerRequest struct {
@@ -98,6 +102,8 @@ type ExistingContainerRequest struct {
 	Password      string `json:"password" url:"password,omitempty"`
 	SshPublicKeys string `json:"ssh-public-keys" url:"ssh-public-keys,omitempty"`
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
+	SearchDomain  string `json:"searchdomain" url:"searchdomain,omitempty"`
+	Nameserver    string `json: "nameserver" url:"nameserver,omitempty"`
 }
 
 type ContainerConfigRequest struct {
