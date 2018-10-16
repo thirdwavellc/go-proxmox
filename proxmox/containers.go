@@ -84,7 +84,7 @@ type NewContainerRequest struct {
 	SshPublicKeys string `json:"ssh-public-keys" url:"ssh-public-keys,omitempty"`
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 	SearchDomain  string `json:"searchdomain" url:"searchdomain,omitempty"`
-	Nameserver    string `json: "nameserver" url:"nameserver,omitempty"`
+	Nameserver    string `json:"nameserver" url:"nameserver,omitempty"`
 }
 
 type ExistingContainerRequest struct {
