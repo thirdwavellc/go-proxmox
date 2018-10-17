@@ -89,11 +89,6 @@ func (p ProxmoxClient) apiRequest(method string, endpoint_url string, payload ur
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		err := errors.New(resp.Status)
-		return nil, err
-	}
-
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -105,6 +100,11 @@ func (p ProxmoxClient) apiRequest(method string, endpoint_url string, payload ur
 	log.Println("Body:")
 	log.Printf("%s", body)
 	log.Println("----------------------------------------------------------------------------")
+
+	if resp.StatusCode != 200 {
+		err := errors.New(resp.Status)
+		return nil, err
+	}
 
 	return body, nil
 }
