@@ -41,6 +41,7 @@ type Options struct {
 	user_id         string
 	search_domain   string
 	nameserver      string
+	start           int
 }
 
 func getOpts() Options {
@@ -79,6 +80,7 @@ func getOpts() Options {
 	flag.StringVar(&options.user_id, "user-id", "", "User Id")
 	flag.StringVar(&options.search_domain, "search-domain", "", "Search domain")
 	flag.StringVar(&options.nameserver, "nameserver", "", "Nameserver")
+	flag.IntVar(&options.start, "start", 0, "Start after creation")
 
 	flag.Parse()
 
@@ -305,6 +307,7 @@ func main() {
 		req.Unprivileged = options.unprivileged
 		req.SearchDomain = options.search_domain
 		req.Nameserver = options.nameserver
+		req.Start = options.start
 		upid, err := client.CreateContainer(req)
 
 		if err != nil {

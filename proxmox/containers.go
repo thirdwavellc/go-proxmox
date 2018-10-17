@@ -85,6 +85,7 @@ type NewContainerRequest struct {
 	Unprivileged  int    `json:"unprivileged" url:"unprivileged,omitempty"`
 	SearchDomain  string `json:"searchdomain" url:"searchdomain,omitempty"`
 	Nameserver    string `json:"nameserver" url:"nameserver,omitempty"`
+	Start         int    `json:"start" url:"start,omitempty"`
 }
 
 type ExistingContainerRequest struct {
