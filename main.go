@@ -39,6 +39,8 @@ type Options struct {
 	start_time      string
 	all             int
 	user_id         string
+	search_domain   string
+	nameserver      string
 }
 
 func getOpts() Options {
@@ -75,6 +77,8 @@ func getOpts() Options {
 	flag.StringVar(&options.start_time, "start-time", "", "Backup start time")
 	flag.IntVar(&options.all, "all", 0, "Backup all")
 	flag.StringVar(&options.user_id, "user-id", "", "User Id")
+	flag.StringVar(&options.search_domain, "search-domain", "", "Search domain")
+	flag.StringVar(&options.nameserver, "nameserver", "", "Nameserver")
 
 	flag.Parse()
 
@@ -299,6 +303,8 @@ func main() {
 		req.Password = options.root_password
 		req.SshPublicKeys = options.ssh_public_keys
 		req.Unprivileged = options.unprivileged
+		req.SearchDomain = options.search_domain
+		req.Nameserver = options.nameserver
 		upid, err := client.CreateContainer(req)
 
 		if err != nil {
