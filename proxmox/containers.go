@@ -63,6 +63,7 @@ type ContainerConfig struct {
 	Net0         string
 	OsType       string `json:"ostype"`
 	RootFs       string `json:"rootfs"`
+	Mp0          string
 	Swap         int
 	SearchDomain string `json:"searchdomain"`
 	Nameserver   string `json:"nameserver"`
@@ -75,6 +76,7 @@ type NewContainerRequest struct {
 	Net0          string `json:"net0" url:"net0,omitempty"`
 	Storage       string `json:"storage" url:"storage,omitempty"`
 	RootFs        string `json:"rootfs" url:"rootfs,omitempty"`
+	Mp0           string `json:"mp0" url:"mp0,omitempty"`
 	Cores         int    `json:"cores" url:"cores,omitempty"`
 	Memory        int    `json:"memory" url:"memory,omitempty"`
 	Swap          int    `json:"swap" url:"swap,omitempty"`
@@ -95,6 +97,7 @@ type ExistingContainerRequest struct {
 	Net0          string `json:"net0" url:"net0,omitempty"`
 	Storage       string `json:"storage" url:"storage,omitempty"`
 	RootFs        string `json:"rootfs" url:"rootfs,omitempty"`
+	Mp0           string `json:"mp0" url:"mp0,omitempty"`
 	Cores         int    `json:"cores" url:"cores,omitempty"`
 	Memory        int    `json:"memory" url:"memory,omitempty"`
 	Swap          int    `json:"swap" url:"swap,omitempty"`
